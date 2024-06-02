@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "49076525804",
+    "project_id": "nutrisync-cc928",
+    "storage_bucket": "nutrisync-cc928.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:49076525804:android:e6214c0aecf60ceadce3c9",
+        "android_client_info": {
+          "package_name": "NUtriSync.com"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "49076525804-ihbs02cmjfhsanv39nqm42ipsl3nf1op.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDpAMkmqY0bwJ8hmG5bW2Tjpp23toJeKF8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "49076525804-ihbs02cmjfhsanv39nqm42ipsl3nf1op.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
