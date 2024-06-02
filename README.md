@@ -1,8 +1,20 @@
-# Welcome to your Expo app 👋
+# NUS-Orbital NUtriSync App
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
+## Cloning Repository
+
+1. Using Git Clone
+
+   ```bash
+   git clone <repository link>
+   ```bash
+
 ## Get started
+
+1. Please install Android Emulator before doing anything else
+
+   [Download Android Emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
 
 1. Install dependencies
 
@@ -25,15 +37,9 @@ In the output, you'll find options to open the app in a
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
-## Get a fresh project
+## Launching NUtriSync Application
 
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+After the app has started, press 'A' to launch the Android Emulator
 
 ## Learn more
 
