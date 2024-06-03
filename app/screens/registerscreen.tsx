@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ActivityIndicator, Button } from 'react-native';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { firebase_auth } from '../../config/firebaseConfig';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '../../config/firebaseConfig';
 
-const RegisterScreen = () => {
+const RegisterScreen = ({ navigation }) => {
     const [createusername, setcreateusername] = useState('');
     const [createpassword, setcreatepassword] = useState('');
     const [confirmpassword, setconfirmpassword] = useState('');
@@ -29,9 +29,9 @@ const RegisterScreen = () => {
           const addNewUser = await setDoc(doc(db, "users", response.user.uid), {
             username: createusername,
             email: email,
+            firstlogin: true
           });
-
-          alert("Signed up! You will now be redirected into the application");
+          alert("Registration Successful!");
         } catch (error: any) {
           console.log(error);
           alert('Sign up failed: ' + error.message);
@@ -50,7 +50,6 @@ const RegisterScreen = () => {
                 placeholderTextColor="#888"
                 value={createusername}
                 onChangeText={(value) => setcreateusername(value)}
-                
             />
             <Text style={styles.registerfont}>Password</Text>
             <TextInput

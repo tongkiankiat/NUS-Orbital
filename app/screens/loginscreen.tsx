@@ -2,6 +2,8 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import React, { useState } from 'react';
 import { View, TextInput, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { firebase_auth } from '../../config/firebaseConfig'
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../../config/firebaseConfig';
 
 const LogInScreen = () => {
   const [email, setEmail] = useState('');
@@ -14,8 +16,11 @@ const LogInScreen = () => {
     if (email && password) {
       try {
         const response = await signInWithEmailAndPassword(auth, email, password);
+        const updatefirsttime = doc(db, "users", firebase_auth.currentUser?.uid)
+        await updateDoc(updatefirsttime, {
+          firstlogin: false
+        })
         console.log(response);
-        alert("Signed in! You will now be redirected into the application");
       } catch (error: any) {
         console.log(error);
         alert('Sign in failed: ' + error.message);
