@@ -1,14 +1,17 @@
-import { View, Text, TouchableOpacity, StyleSheet, Image, Button } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, Image, StatusBar } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import { signOut } from 'firebase/auth'
 import { db, firebase_auth } from '../../config/firebaseConfig'
 import { doc, getDoc } from 'firebase/firestore'
+import { router } from 'expo-router'
 
 const MainScreen = () => {
   const [username, setUsername] = useState<any>('');
-  
+
+
   const logOut = async () => {
     await signOut(firebase_auth);
+    router.push("/");
   }
 
   // fetch username from database
@@ -71,6 +74,7 @@ const styles = StyleSheet.create({
       padding: 10,
       borderBottomWidth: 1,
       borderBottomColor: '#CCCCCC',
+      paddingTop: StatusBar.currentHeight
     },
     welcomeText: {
       fontSize: 18,
