@@ -18,8 +18,6 @@ const RegistrationDetails = () => {
       {key:'3', value:'Maintain Weight'}
     ]
 
-    const auth = firebase_auth;
-
     const addDetails = async () => {
         setLoading(true);
         if (height && weight && goals) {
