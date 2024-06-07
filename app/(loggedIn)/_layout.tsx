@@ -2,7 +2,7 @@ import { Stack } from "expo-router";
 
 const loggedInLayout = () => {
     return (
-        <Stack>
+        <Stack screenOptions={{headerShown:false}}>
             <Stack.Screen name="mainscreen"/>
         </Stack>
     )
