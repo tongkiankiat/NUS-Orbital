@@ -32,10 +32,9 @@ const RegisterScreen = () => {
             email: email,
             firstlogin: true
           });
-          alert("Registration Successful!");
 
-          // Navigate to the mainscreen
-          router.push('../(loggedIn)/mainscreen')
+          // Navigate to the registration details page
+          router.push('/registrationdetails')
         } catch (error: any) {
           console.log(error);
           alert('Sign up failed: ' + error.message);
