@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "567003571742",
+    "project_id": "nutrisync2",
+    "storage_bucket": "nutrisync2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:567003571742:android:268ed3ca49d9d5beca300f",
+        "android_client_info": {
+          "package_name": "NUtriSync.com"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCOlf7bRMImO77AwDjL-4Bk5uBuyGF0a10"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
