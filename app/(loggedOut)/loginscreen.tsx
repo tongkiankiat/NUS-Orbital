@@ -22,7 +22,7 @@ const LogInScreen = () => {
           firstlogin: false
         })
         console.log(response);
-        router.push("../(loggedIn)/mainscreen")
+        router.push("../(loggedIn)/Home")
       } catch (error: any) {
         console.log(error);
         alert('Sign in failed: ' + error.message);
