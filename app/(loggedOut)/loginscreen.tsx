@@ -4,6 +4,7 @@ import { View, TextInput, Text, StyleSheet, TouchableOpacity, ActivityIndicator 
 import { firebase_auth } from '../../config/firebaseConfig'
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../config/firebaseConfig';
+import { router } from 'expo-router';
 
 const LogInScreen = () => {
   const [email, setEmail] = useState('');
@@ -21,6 +22,7 @@ const LogInScreen = () => {
           firstlogin: false
         })
         console.log(response);
+        router.push("../(loggedIn)/mainscreen")
       } catch (error: any) {
         console.log(error);
         alert('Sign in failed: ' + error.message);
