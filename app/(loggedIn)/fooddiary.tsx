@@ -4,7 +4,6 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-// import PieChart from 'react-native-pie';
 
 const fooddiary = () => {
   return (
