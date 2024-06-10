@@ -29,7 +29,7 @@ const RegistrationDetails = () => {
                     fitness_goals: goals,
                     firstlogin: false
                 });
-                router.push("../(loggedIn)/mainscreen");
+                router.push("../(loggedIn)/home");
             } catch (error: any) {
                 alert('Registration failed! ' + error.message);
             } finally {
