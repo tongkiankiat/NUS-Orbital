@@ -23,7 +23,7 @@ const MainScreen = () => {
       return;
     }
     setUsername(docSnap.data().username);
-  } 
+  }
 
   useEffect(() => {
     fetchUsername();
