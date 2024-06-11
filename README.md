@@ -12,21 +12,29 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
 ## Get started
 
-1. Please install Android Emulator before doing anything else
+1. Install Android Emulator
 
    [Download Android Emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
 
-1. Install dependencies
+2. Install Node.js (Ensure that the Node.js version has LTS, those are stable with npm)
+
+   [Node.js Installer](https://nodejs.org/en/download/package-manager)
+
+3. Launch the cloned repository folder and install dependencies
 
    ```bash
    npm install
    ```
 
-2. Start the app
+4. Start the app
 
    ```bash
     npx expo start
    ```
+
+## Launching NUtriSync Application
+
+After the app has started, press 'A' to launch the Android Emulator
 
 In the output, you'll find options to open the app in a
 
@@ -34,12 +42,6 @@ In the output, you'll find options to open the app in a
 - [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
 - [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
 - [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Launching NUtriSync Application
-
-After the app has started, press 'A' to launch the Android Emulator
 
 ## Learn more
 
