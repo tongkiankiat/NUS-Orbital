@@ -20,7 +20,7 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
    [Node.js Installer](https://nodejs.org/en/download/package-manager)
 
-3. Launch the cloned repository folder and install dependencies
+3. Open the cloned repository folder in an IDE and install dependencies
 
    ```bash
    npm install
