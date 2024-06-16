@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, ActivityIndicator, Button } from 'react-native';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { firebase_auth } from '../../config/firebaseConfig';
-import { doc, setDoc } from 'firebase/firestore';
+import { addDoc, collection } from 'firebase/firestore';
 import { db } from '../../config/firebaseConfig';
 import { router } from 'expo-router';
 
@@ -18,30 +18,29 @@ const RegisterScreen = () => {
     const signUp = async () => {
         setLoading(true);
         try {
-          if (createpassword != confirmpassword) {
-            alert("Passwords do not match!");
-            setLoading(false);
-            return;
-          }
-          const response = await createUserWithEmailAndPassword(auth, email, createpassword);
-          console.log(response);
+            if (createpassword != confirmpassword) {
+                alert("Passwords do not match!");
+                setLoading(false);
+                return;
+            }
+            const response = await createUserWithEmailAndPassword(auth, email, createpassword);
+            console.log(response);
 
-          // create a new entry in firestore with user's details
-          const addNewUser = await setDoc(doc(db, "users", response.user.uid), {
-            username: createusername,
-            email: email,
-            firstlogin: true
-          });
+            // create a new entry in firestore with user's details
+            const addNewUser = await addDoc(collection(db, "users", response.user.uid, "basic_information"), {
+                username: createusername,
+                email: email
+            });
 
-          // Navigate to the registration details page
-          router.push('/registrationdetails')
+            // Navigate to the registration details page
+            router.push('/registrationdetails')
         } catch (error: any) {
-          console.log(error);
-          alert('Sign up failed: ' + error.message);
+            console.log(error);
+            alert('Sign up failed: ' + error.message);
         } finally {
-          setLoading(false);
+            setLoading(false);
         }
-      }
+    }
 
     return (
         <View style={styles.container}>
