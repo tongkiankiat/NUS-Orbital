@@ -17,10 +17,6 @@ const LogInScreen = () => {
     if (email && password) {
       try {
         const response = await signInWithEmailAndPassword(auth, email, password);
-        const updatefirsttime = doc(db, "users", firebase_auth.currentUser?.uid)
-        await updateDoc(updatefirsttime, {
-          firstlogin: false
-        })
         console.log(response);
         router.push("../(loggedIn)/home")
       } catch (error: any) {
