@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Text, View, StyleSheet, TextInput, Button, FlatList } from 'react-native';
 import axios from 'axios';
+import { XMLParser } from 'fast-xml-parser';
 
 const All = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -18,11 +19,29 @@ const All = () => {
     setError(null);
 
     try {
-      const response = await axios.post('http://fixie:LyLj5QglX9Ezjxa@velodrome.usefixie.com:80', {
+      // ***IMPT, USE LOCALHOST FOR DEVELOPMENT PURPOSES, NOT RENDER SERVER***
+
+      // const response = await axios.post('https://nus-orbital.onrender.com/api/proxy', {
+      //   item: searchTerm,
+      // });
+      const response = await axios.post('http://10.37.7.211:3000/api/proxy', {
         item: searchTerm,
       });
 
-      setData(response.data.foods.food); // Adjust this depending on the structure of the response
+      // Define parser
+      const parser = new XMLParser({
+        ignoreAttributes: false,
+        attributeNamePrefix: "",
+        parseAttributeValue: true,
+      });
+
+      // Parse XML to JSON using fast-xml-parser
+      const jsonData = parser.parse(response.data);
+      const foodsData = jsonData.foods.food;
+      const parsedFoods = Array.isArray(foodsData) ? foodsData : [foodsData];
+      console.log(parsedFoods);
+
+      setData(parsedFoods);
     } catch (err) {
       console.error('Error fetching data:', err);
       alert('Error fetching data');
