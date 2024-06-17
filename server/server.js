@@ -1,18 +1,16 @@
-const request = require('request');
 const express = require('express');
 const bodyParser = require('body-parser');
-const clientID = process.env.CLIENT_ID || 'b96aaf23502141c49a0654b263f9a628';
-const clientSecret = process.env.CLIENT_SECRET || '8a6d21bb3e864b508d9167bb4d1d3b93';
+const request = require('request');
+const clientID = process.env.CLIENT_ID || 'e4062cdc4b0d4d019a607e822ea7c33f';
+const clientSecret = process.env.CLIENT_SECRET || 'd7d717427eea4388b858bad8b7ea08e9';
 let accessToken = '';
 let tokenExpiresAt = 0;
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware to parse JSON requests
 app.use(bodyParser.json());
 
-// Function to get access token
 function getAccessToken(callback) {
     const options = {
         method: 'POST',
@@ -26,8 +24,7 @@ function getAccessToken(callback) {
             'grant_type': 'client_credentials',
             'scope': 'basic'
         },
-        json: true,
-        proxy: process.env.FIXIE_URL
+        json: true
     };
 
     request(options, function (error, response, body) {
@@ -35,15 +32,19 @@ function getAccessToken(callback) {
             console.error("Error getting access token: ", error);
             callback(error);
         } else {
-            accessToken = body.access_token;
-            tokenExpiresAt = Date.now() + body.expires_in * 1000;
-            console.log("Access Token obtained!");
-            callback(null, accessToken);
+            if (response.statusCode === 200) {
+                accessToken = body.access_token;
+                tokenExpiresAt = Date.now() + body.expires_in * 1000;
+                console.log("Access Token obtained!");
+                callback(null, accessToken);
+            } else {
+                console.error("Failed to obtain access token: ", body);
+                callback(new Error("Failed to obtain access token"));
+            }
         }
     });
 }
 
-// Function to send request to FatSecret API
 function sendRequest(req, res, token, item) {
     const options = {
         method: 'POST',
@@ -54,10 +55,10 @@ function sendRequest(req, res, token, item) {
         },
         qs: {
             method: 'foods.search',
-            search_expression: item
+            search_expression: item,
+            max_results: 1 
         },
-        json: true,
-        proxy: process.env.FIXIE_URL
+        json: true
     };
 
     request(options, function (error, response, body) {
@@ -65,13 +66,17 @@ function sendRequest(req, res, token, item) {
             console.error("Error obtaining information: ", error);
             res.status(500).send('Error obtaining information');
         } else {
-            console.log("Data obtained!");
-            res.status(response.statusCode).json(body);
+            if (response.statusCode === 200) {
+                console.log("Data obtained!");
+                res.status(response.statusCode).json(body);
+            } else {
+                console.error("Failed to fetch data: ", body);
+                res.status(response.statusCode).send('Failed to fetch data');
+            }
         }
     });
 }
 
-// Proxy Endpoint
 app.post('/api/proxy', (req, res) => {
     const item = req.body.item;
     if (!item) {
@@ -79,11 +84,11 @@ app.post('/api/proxy', (req, res) => {
     }
 
     if (!accessToken || Date.now() >= tokenExpiresAt) {
-        // Get access token if it has not been done so or if it has expired
         getAccessToken((error, token) => {
             if (error) {
                 return res.status(500).send('Error getting access token');
             } else {
+                console.log(item)
                 sendRequest(req, res, token, item);
             }
         });
@@ -92,7 +97,6 @@ app.post('/api/proxy', (req, res) => {
     }
 });
 
-// Start the server
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });
