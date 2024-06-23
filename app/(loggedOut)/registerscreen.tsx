@@ -1,57 +1,68 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ActivityIndicator, Button } from 'react-native';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { firebase_auth } from '../../config/firebaseConfig';
-import { addDoc, collection } from 'firebase/firestore';
-import { db } from '../../config/firebaseConfig';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ActivityIndicator, Button, StatusBar } from 'react-native';
 import { router } from 'expo-router';
+import { supabase } from '../../lib/supabase';
+import { Alert } from 'react-native';
 
 const RegisterScreen = () => {
-    const [createusername, setcreateusername] = useState('');
+    const [username, setusername] = useState('');
     const [createpassword, setcreatepassword] = useState('');
     const [confirmpassword, setconfirmpassword] = useState('');
     const [email, setemail] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const auth = firebase_auth;
-
     const signUp = async () => {
         setLoading(true);
-        try {
-            if (createpassword != confirmpassword) {
-                alert("Passwords do not match!");
+        if (createpassword === confirmpassword) {
+            const { data: { session }, error } = await supabase.auth.signUp({
+                email: email,
+                password: createpassword,
+            });
+            if (error) {
+                Alert.alert(error.message);
+                console.log(error.message);
+                setLoading(false);
+                return;
+            };
+
+            // update username in the users table
+            const user = await supabase.auth.getUser();
+            const uuid = user.data.user?.id;
+            if (!user) {
+                Alert.alert("No such user!");
                 setLoading(false);
                 return;
             }
-            const response = await createUserWithEmailAndPassword(auth, email, createpassword);
-            console.log(response);
-
-            // create a new entry in firestore with user's details
-            const addNewUser = await addDoc(collection(db, "users", response.user.uid, "basic_information"), {
-                username: createusername,
-                email: email
-            });
-
-            // Navigate to the registration details page
-            router.push('/registrationdetails')
-        } catch (error: any) {
-            console.log(error);
-            alert('Sign up failed: ' + error.message);
-        } finally {
+            const { error: updateError } = await supabase.from("users").update({
+                username: username
+            }).eq('id', uuid);
+            
+            Alert.alert('Sign up successful!', 'You have successfully signed up!', [{ text: 'OK', onPress: () => router.push('registrationdetails') }]);
+            setLoading(false);
+        }
+        else {
+            Alert.alert('Passwords do not match!');
             setLoading(false);
         }
     }
 
     return (
         <View style={styles.container}>
-            <Text style={styles.font}>Create your account</Text>
-            <Text style={styles.registerfont}>Username</Text>
+        <Text style={styles.registerfont}>Username</Text>
             <TextInput
                 style={styles.input}
                 placeholder="Username"
                 placeholderTextColor="#888"
-                value={createusername}
-                onChangeText={(value) => setcreateusername(value)}
+                onChangeText={text => setusername(text)}
+                value={username}
+            />
+            <Text style={styles.registerfont}>Email</Text>
+            <TextInput
+                style={styles.input}
+                placeholder="Email"
+                placeholderTextColor="#888"
+                onChangeText={text => setemail(text)}
+                value={email}
             />
             <Text style={styles.registerfont}>Password</Text>
             <TextInput
@@ -71,14 +82,6 @@ const RegisterScreen = () => {
                 onChangeText={text => setconfirmpassword(text)}
                 value={confirmpassword}
             />
-            <Text style={styles.registerfont}>Email</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="Email"
-                placeholderTextColor="#888"
-                onChangeText={text => setemail(text)}
-                value={email}
-            />
             {
                 loading ? (
                     <ActivityIndicator size="large" color="#0000ff" />
@@ -95,10 +98,11 @@ const RegisterScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'flex-start',
+        justifyContent: 'center',
         alignItems: 'center',
         paddingHorizontal: 20,
-        backgroundColor: '#E4FBFF'
+        backgroundColor: '#E4FBFF',
+        paddingTop: StatusBar.currentHeight
     },
     font: {
         color: 'black',
