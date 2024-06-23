@@ -12,9 +12,11 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
 ## Get started
 
-1. Install Android Emulator
+1. Install Android Emulator or Expo-Go Mobile to test application locally
 
    [Download Android Emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
+
+   [Download Expo-Go Mobile](https://expo.dev/go)
 
 2. Install Node.js (Ensure that the Node.js version has LTS, those are stable with npm)
 
