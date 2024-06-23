@@ -1,64 +1,98 @@
-import { firebase_auth } from "../../config/firebaseConfig";
 import React, { useState } from "react";
-import { addDoc, collection } from 'firebase/firestore';
-import { db } from "../../config/firebaseConfig";
-import { View, StyleSheet, Text, TouchableOpacity, TextInput } from "react-native";
+import { View, StyleSheet, Text, TouchableOpacity, TextInput, Alert } from "react-native";
 import { SelectList } from 'react-native-dropdown-select-list';
 import { router } from "expo-router";
+import { supabase } from "../../lib/supabase";
 
 const RegistrationDetails = () => {
   const [goals, setGoals] = useState('')
   const [height, setHeight] = useState('')
   const [weight, setWeight] = useState('')
+  const [age, setAge] = useState('')
+  const [gender, setGender] = useState('')
   const [loading, setLoading] = useState(false);
 
-  const dropdown_data = [
+  const dropdown_data_goals = [
     { key: '1', value: 'Lose Weight' },
     { key: '2', value: 'Gain Weight' },
     { key: '3', value: 'Maintain Weight' }
-  ]
+  ];
 
-  const addDetails = async () => {
+  const dropdown_data_gender = [
+    { key: '1', value: 'Male' },
+    { key: '2', value: 'Female' }
+  ];
+
+  const updateDetails = async () => {
     setLoading(true);
-    if (height && weight && goals) {
-      try {
-        const user = firebase_auth.currentUser
+    const user = await supabase.auth.getUser();
+    const uuid = user.data.user?.id;
 
-        if (!user) {
-          alert("No authentication user found!");
-          setLoading(false);
-          return;
-        }
-
-        const addDetails = await addDoc(collection(db, "users", user.uid, "biometrics"), {
-          height: height,
-          weight: weight
-        });
-        router.push("../(loggedIn)/home");
-      } catch (error: any) {
-        alert('Registration failed! ' + error.message);
-      } finally {
+    try {
+      if (!user) {
+        Alert.alert('Error', 'No user logged in!');
         setLoading(false);
-      }
-    }
-    else {
-      alert("Please fill up all the details!");
+        return;
+      };
+
+      const { error: updateError } = await supabase.from("users").update({
+        goals: goals,
+        height: parseInt(height, 10),
+        weight: parseInt(weight, 10),
+        age: parseInt(age, 10),
+        gender: gender
+      }).eq('id', uuid);
+
+      if (updateError) {
+        Alert.alert('Error', updateError.message);
+        return;
+      };
+    } catch (error) {
+      console.error('Error occured: ', error);
+      setLoading(false);
       return;
+    } finally {
+      // Alert.alert('Success', 'Details updated successfully!', [
+      //   { text: 'OK', onPress: () => router.push('registration_allergies') }
+      // ]);
+      setLoading(false);
+      router.push('registration_allergies');
     }
-  }
+  };
+
   return (
     <View style={styles.container}>
       <View style={{ marginHorizontal: 20 }}>
         <Text style={{ marginBottom: 10, alignSelf: 'center' }}>What are your fitness goals?</Text>
         <SelectList
           setSelected={(value: any) => setGoals(value)}
-          data={dropdown_data}
+          data={dropdown_data_goals}
           save="value"
           search={false}
         />
       </View>
       <View style={{ marginHorizontal: 20 }}>
-        <Text style={{ marginTop: 10, alignSelf: 'center' }}>What is your height?</Text>
+        <Text style={{ marginBottom: 10, alignSelf: 'center', marginTop: 10 }}>What is your gender?</Text>
+        <SelectList
+          setSelected={(value: any) => setGender(value)}
+          data={dropdown_data_gender}
+          save='value'
+          search={false}
+        />
+      </View>
+      <View style={{ marginHorizontal: 20 }}>
+        <Text style={{ marginTop: 10, alignSelf: 'center' }}>What is your age?</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Age"
+          placeholderTextColor="#888"
+          value={age}
+          onChangeText={(value) => setAge(value)}
+          keyboardType="numeric"
+        />
+      </View>
+      <View style={{ marginHorizontal: 20 }}>
+        <Text style={{ alignSelf: 'center' }}>What is your height?</Text>
         <TextInput
           style={styles.input}
           placeholder="Height (in cm)"
@@ -80,7 +114,7 @@ const RegistrationDetails = () => {
         />
       </View>
       <View>
-        <TouchableOpacity style={styles.button} onPress={addDetails}>
+        <TouchableOpacity style={styles.button} onPress={updateDetails}>
           <Text style={styles.buttonText}>Next</Text>
         </TouchableOpacity>
       </View>
