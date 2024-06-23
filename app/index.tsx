@@ -6,10 +6,10 @@ const HomeScreen = () => {
     return (
       <View style={styles.container}>
           <Image source={require('../assets/images/Logo.png')} style = {styles.logo}/>
-          <TouchableOpacity style={styles.button} onPress={() => router.push('/loginscreen')}>
+          <TouchableOpacity style={styles.button} onPress={() => router.push('./(loggedOut)/loginscreen')}>
               <Text style={styles.buttonText}>Login</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => router.push('/registerscreen')}>
+          <TouchableOpacity style={styles.button} onPress={() => router.push('./(loggedOut)/registerscreen')}>
               <Text style={styles.buttonText}>Register</Text>
           </TouchableOpacity>
       </View>
