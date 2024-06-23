@@ -24,10 +24,10 @@ const All = () => {
       // const response = await axios.post('https://nus-orbital.onrender.com/api/proxy', {
       //   item: searchTerm,
       // });
-      const response = await axios.post('http://10.37.7.211:3000/api/proxy', {
+      const response = await axios.post('http://10.32.28.207:3000/api/proxy', {
         item: searchTerm,
       });
-
+      console.log(response.data)
       // Define parser
       const parser = new XMLParser({
         ignoreAttributes: false,
