@@ -1,35 +1,35 @@
-import { signInWithEmailAndPassword } from 'firebase/auth';
 import React, { useState } from 'react';
-import { View, TextInput, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { firebase_auth } from '../../config/firebaseConfig'
-import { doc, updateDoc } from 'firebase/firestore';
-import { db } from '../../config/firebaseConfig';
+import { View, TextInput, Text, StyleSheet, TouchableOpacity, ActivityIndicator, AppState} from 'react-native';
 import { router } from 'expo-router';
+import { supabase } from '../../lib/supabase'
+
+AppState.addEventListener('change', (state) => {
+  if (state === 'active') {
+    supabase.auth.startAutoRefresh()
+  } else {
+    supabase.auth.stopAutoRefresh()
+  }
+})
 
 const LogInScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const auth = firebase_auth;
 
   const signIn = async () => {
-    setLoading(true);
-    if (email && password) {
-      try {
-        const response = await signInWithEmailAndPassword(auth, email, password);
-        console.log(response);
-        router.push("../(loggedIn)/home")
-      } catch (error: any) {
-        console.log(error);
-        alert('Sign in failed: ' + error.message);
-      } finally {
-        setLoading(false);
-      }
+    setLoading(true)
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password,
+    });
+    if (error) { 
+      alert(error.message);
     }
     else {
-      alert("Please enter a valid email and password");
-      return;
+      alert("Successfully logged in!");
+      router.push('../(loggedIn)/home');
     }
+    setLoading(false);
   }
 
   return (
