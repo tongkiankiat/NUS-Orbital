@@ -1,41 +1,35 @@
-import { View, Text, TouchableOpacity, StyleSheet, Image, StatusBar } from 'react-native'
-import React, { useState, useEffect } from 'react'
-import { signOut } from 'firebase/auth'
-import { db, firebase_auth } from '../../config/firebaseConfig'
-import { doc, getDoc, collection, getDocs } from 'firebase/firestore'
-import { router } from 'expo-router'
+import { View, Text, TouchableOpacity, StyleSheet, Image, StatusBar } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { router } from 'expo-router';
+import { supabase } from '../../lib/supabase';
+
+// read data for NUS gym capacity
+
 
 const MainScreen = () => {
   const [username, setUsername] = useState<any>('');
-
-
+  
+  // signing out the user
   const logOut = async () => {
-    await signOut(firebase_auth);
+    const { error } = await supabase.auth.signOut();
     router.push("/");
   }
 
   // fetch username from database
   const fetchUsername = async () => {
     try {
-      const user = firebase_auth.currentUser;
-
+      // initialize user from supabase.auth
+      const user = await supabase.auth.getUser();
+      const uuid = user.data.user?.id;
       if (!user) {
         console.log("No such user !");
         return;
       }
 
-      const basicInfoCollectionRef = collection(db, "users", user.uid, "basic_information");
-      const querySnapshot = await getDocs(basicInfoCollectionRef);
+      const { data, error } = await supabase.from('users').select('username').eq('id', uuid).single();
 
-      if (querySnapshot.empty) {
-        console.log("No documents found in basic_information subcollection!");
-        return;
-      }
-
-      // Retrieve username
-      const userData = querySnapshot.docs[0].data();
-      setUsername(userData.username);
-
+      setUsername(data?.username);
+    
     } catch (error) {
       console.error("Error fetching documents: ", error);
     }
