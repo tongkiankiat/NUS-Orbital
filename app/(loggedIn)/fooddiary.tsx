@@ -9,7 +9,6 @@ import * as Notifications from 'expo-notifications';
 import { FontAwesome5, MaterialCommunityIcons, AntDesign } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 import SharedHeader from '../components/sharedheader';
-import { VictoryPie } from 'victory-native';
 
 // Add timezone and utc plugin for dayjs for Singapore timezone
 dayjs.extend(utc);
@@ -348,23 +347,10 @@ const UpdateDiary = () => {
 
   const Calorie_tracker = () => {
 
-    const consumedPercentage = (consumedcalories / caloricGoal) * 100;
-    const remainingPercentage = 100 - consumedPercentage;
-
     return (
       <View style={styles.roundedbackground_piechart}>
         <Text style={{ textAlign: 'center' }}>Calorie Tracker</Text>
         <View style={{ flexDirection: 'row', flex: 1, alignItems: 'center', width: windWidth - 100 }}>
-          <View>
-            {loading ? (
-              <Text>Loading...</Text>
-            ) : (
-              <View style={styles.pieChartContainer}>
-                <View style={[styles.pieSlice, { backgroundColor: 'tomato', flex: consumedPercentage }]} />
-                <View style={[styles.pieSlice, { backgroundColor: 'orange', flex: remainingPercentage }]} />
-              </View>
-            )}
-          </View>
           <View style={{ flex: 1, flexDirection: 'column', alignItems: 'center', justifyContent: 'space-evenly', width: 200, height: 180 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', width: 90 }}>
               <MaterialCommunityIcons name='silverware-fork-knife' size={14} color='black' />
