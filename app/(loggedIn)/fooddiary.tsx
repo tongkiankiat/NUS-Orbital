@@ -9,6 +9,7 @@ import * as Notifications from 'expo-notifications';
 import { FontAwesome5, MaterialCommunityIcons, AntDesign } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 import SharedHeader from '../components/sharedheader';
+import { DateTime } from 'luxon';
 
 // Add timezone and utc plugin for dayjs for Singapore timezone
 dayjs.extend(utc);
@@ -71,7 +72,7 @@ const UpdateDiary = () => {
         setLoading(false);
         return;
       }
-
+      const currentDate_SG = DateTime.now().setZone('Asia/Singapore').toISODate();
       // This retrieves meal times
       const { data: mealTimes, error: getError } = await supabase.from('users').select('breakfast_time, lunch_time, dinner_time').eq('id', uuid);
       if (getError) {
@@ -80,7 +81,7 @@ const UpdateDiary = () => {
         setMealTimeArray(Object.values(mealTimes[0]));
       };
       // This checks if meals have been logged
-      const { data: LoggedMeals, error: getError_log } = await supabase.from('meals').select('meal_time').eq('id', uuid).eq('date', new Date().toISOString().split('T')[0])
+      const { data: LoggedMeals, error: getError_log } = await supabase.from('meals').select('meal_time').eq('id', uuid).eq('date', currentDate_SG)
       if (getError_log) {
         Alert.alert('Error occured retrieving meal times: ', getError_log.message);
       } else if (LoggedMeals) {
@@ -230,17 +231,29 @@ const UpdateDiary = () => {
     };
     const uuid = user.data.user?.id;
     setLoading(true);
-
+    const currentDate_SG = DateTime.now().setZone('Asia/Singapore').toISODate();
     try {
-      const { data: meals, error } = await supabase.from('meals').select('meal').eq('id', uuid).eq('date', new Date().toISOString().split('T')[0]);
-      if (error) {
-        Alert.alert('Error occured retrieving calories: ', error.message);
-      } else if (meals && meals.length > 0) {
+      const { data: meals, error: mealError } = await supabase.from('meals').select('meal').eq('id', uuid).eq('date', currentDate_SG).eq('custom_meal', false);
+      const { data: custom_meals, error: customMealError } = await supabase.from('meals').select('meal').eq('id', uuid).eq('date', currentDate_SG).eq('custom_meal', true);
+      if (mealError || customMealError) {
+        Alert.alert('Error occured retrieving calories: ', mealError?.message && customMealError?.message);
+      } else if (meals && custom_meals) {
         let totalCalories = 0;
-        meals.forEach(meal => {
-          const calories = meal.meal.calories;
-          totalCalories += calories;
-        });
+        // Adding calories from normal meals
+        if (meals && meals.length > 0) {
+          meals.forEach(meal => {
+            const calories = meal.meal.calories || 0;
+            totalCalories += calories;
+          });
+        }
+
+        // Adding calories from custom meals
+        if (custom_meals && custom_meals.length > 0) {
+          custom_meals.forEach(meal => {
+            const calories = meal.meal[0].calories || 0;
+            totalCalories += calories;
+          });
+        }
         setConsumed(totalCalories);
       }
     } catch (error) {
