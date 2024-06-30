@@ -5,6 +5,7 @@ import { XMLParser } from 'fast-xml-parser';
 import { router, useGlobalSearchParams } from 'expo-router';
 import { supabase } from '../../../lib/supabase';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { DateTime } from 'luxon';
 
 interface Ingredient {
   food_id: string;
@@ -89,7 +90,7 @@ const Meals = () => {
     }
     const uuid = user.data.user?.id;
     try {
-      const { error: sendError } = await supabase.from('meals').insert({ 'id': uuid, meal: selectedRecipe, meal_time: meal_time });
+      const { error: sendError } = await supabase.from('meals').insert({ 'id': uuid, meal: selectedRecipe, meal_time: meal_time, date: DateTime.now().setZone('Asia/Singapore').toISODate()});
       if (!sendError) {
         Alert.alert('Success!', `Meal Logged for ${meal_time}`);
       } else {
@@ -107,7 +108,7 @@ const Meals = () => {
     try {
       // ***IMPT, USE LOCALHOST FOR DEVELOPMENT PURPOSES, NOT RENDER SERVER***
 
-      const ingredientResponse = await axios.post('https://nus-orbital.onrender.com/api/proxy', {item: search,});
+      const ingredientResponse = await axios.post('https://nus-orbital.onrender.com/api/proxy', {item: search});
       // const ingredientResponse = await axios.post('http://192.168.1.142:3000/api/proxy', { item: search }); {/* For the IP address here, use your network's IP, use 'ipconfig' in powershell/terminal to check. Afterwards, whitelist your public IP address (https://www.whatismyip.com/) in FatSecretAPI website*/ }
       const parser = new XMLParser({
         ignoreAttributes: false,
