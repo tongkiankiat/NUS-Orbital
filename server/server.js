@@ -1,8 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const request = require('request');
-const clientID = process.env.CLIENT_ID || 'e4062cdc4b0d4d019a607e822ea7c33f';
-const clientSecret = process.env.CLIENT_SECRET || 'd7d717427eea4388b858bad8b7ea08e9';
+const clientID = process.env.CLIENT_ID || '555862211cf4418197cbe3afef10a4f0';
+const clientSecret = process.env.CLIENT_SECRET || '8bc1bc3a25b84b49b5f6e9ec9d804ac4';
 let accessToken = '';
 let tokenExpiresAt = 0;
 
@@ -22,24 +22,24 @@ function getAccessToken(callback) {
         headers: { 'content-type': 'application/x-www-form-urlencoded' },
         form: {
             'grant_type': 'client_credentials',
-            'scope': 'basic'
+            'scope': 'premier'
         },
         json: true
     };
 
     request(options, function (error, response, body) {
         if (error) {
-            console.error("Error getting access token: ", error);
+            console.error('Error getting access token: ', error);
             callback(error);
         } else {
             if (response.statusCode === 200) {
                 accessToken = body.access_token;
                 tokenExpiresAt = Date.now() + body.expires_in * 1000;
-                console.log("Access Token obtained!");
+                console.log('Access Token obtained!');
                 callback(null, accessToken);
             } else {
-                console.error("Failed to obtain access token: ", body);
-                callback(new Error("Failed to obtain access token"));
+                console.error('Failed to obtain access token: ', body);
+                callback(new Error('Failed to obtain access token'));
             }
         }
     });
@@ -54,23 +54,24 @@ function sendRequest(req, res, token, item) {
             'Authorization': `Bearer ${token}`
         },
         qs: {
-            method: 'foods.search',
+            method: 'foods.search.v3',
             search_expression: item,
-            max_results: 1 
+            include_food_attributes: true,
+            // max_results: 1
         },
         json: true
     };
 
     request(options, function (error, response, body) {
         if (error) {
-            console.error("Error obtaining information: ", error);
+            console.error('Error obtaining information: ', error);
             res.status(500).send('Error obtaining information');
         } else {
             if (response.statusCode === 200) {
-                console.log("Data obtained!");
+                console.log('Data obtained!');
                 res.status(response.statusCode).json(body);
             } else {
-                console.error("Failed to fetch data: ", body);
+                console.error('Failed to fetch data: ', body);
                 res.status(response.statusCode).send('Failed to fetch data');
             }
         }
@@ -88,7 +89,6 @@ app.post('/api/proxy', (req, res) => {
             if (error) {
                 return res.status(500).send('Error getting access token');
             } else {
-                console.log(item)
                 sendRequest(req, res, token, item);
             }
         });
