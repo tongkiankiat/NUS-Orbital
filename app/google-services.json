@@ -1,15 +1,16 @@
 {
   "project_info": {
     "project_number": "567003571742",
+    "firebase_url": "https://nutrisync2-default-rtdb.asia-southeast1.firebasedatabase.app",
     "project_id": "nutrisync2",
     "storage_bucket": "nutrisync2.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:567003571742:android:268ed3ca49d9d5beca300f",
+        "mobilesdk_app_id": "1:567003571742:android:60e9826b79e59d52ca300f",
         "android_client_info": {
-          "package_name": "NUtriSync.com"
+          "package_name": "com.nutrisync"
         }
       },
       "oauth_client": [],
