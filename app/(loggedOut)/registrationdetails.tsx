@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { View, StyleSheet, Text, TouchableOpacity, TextInput, Alert } from "react-native";
+import React, { useState } from 'react';
+import { View, StyleSheet, Text, TouchableOpacity, TextInput, Alert, KeyboardAvoidingView } from 'react-native';
 import { SelectList } from 'react-native-dropdown-select-list';
-import { router } from "expo-router";
-import { supabase } from "../../lib/supabase";
+import { router } from 'expo-router';
+import { supabase } from '../../lib/supabase';
 
 const RegistrationDetails = () => {
   const [goals, setGoals] = useState('')
@@ -35,7 +35,7 @@ const RegistrationDetails = () => {
         return;
       };
 
-      const { error: updateError } = await supabase.from("users").update({
+      const { error: updateError } = await supabase.from('users').update({
         goals: goals,
         height: parseInt(height, 10),
         weight: parseInt(weight, 10),
@@ -52,77 +52,71 @@ const RegistrationDetails = () => {
       setLoading(false);
       return;
     } finally {
-      // Alert.alert('Success', 'Details updated successfully!', [
-      //   { text: 'OK', onPress: () => router.push('registration_allergies') }
-      // ]);
       setLoading(false);
-      router.push('registration_allergies');
+      router.push('registration_fitness');
     }
   };
 
   return (
-    <View style={styles.container}>
-      <View style={{ marginHorizontal: 20 }}>
-        <Text style={{ marginBottom: 10, alignSelf: 'center' }}>What are your fitness goals?</Text>
-        <SelectList
-          setSelected={(value: any) => setGoals(value)}
-          data={dropdown_data_goals}
-          save="value"
-          search={false}
-        />
+    <KeyboardAvoidingView style={styles.keyboardcontainer}>
+      <View style={styles.container}>
+        <View style={{ marginHorizontal: 20 }}>
+          <Text style={{ marginBottom: 10, alignSelf: 'center', marginTop: 10 }}>What is your gender?</Text>
+          <SelectList
+            setSelected={(value: any) => setGender(value)}
+            data={dropdown_data_gender}
+            save='value'
+            search={false}
+          />
+        </View>
+        <View style={{ marginHorizontal: 20 }}>
+          <Text style={{ marginTop: 10, alignSelf: 'center' }}>What is your age?</Text>
+          <TextInput
+            style={styles.input}
+            placeholder='Age'
+            placeholderTextColor='#888'
+            value={age}
+            onChangeText={(value) => setAge(value)}
+            keyboardType='numeric'
+          />
+        </View>
+        <View style={{ marginHorizontal: 20 }}>
+          <Text style={{ alignSelf: 'center' }}>What is your height?</Text>
+          <TextInput
+            style={styles.input}
+            placeholder='Height (in cm)'
+            placeholderTextColor='#888'
+            value={height}
+            onChangeText={(value) => setHeight(value)}
+            keyboardType='numeric'
+          />
+        </View>
+        <View style={{ marginHorizontal: 20 }}>
+          <Text style={{ alignSelf: 'center' }}>What is your weight?</Text>
+          <TextInput
+            style={styles.input}
+            placeholder='Weight (in kg)'
+            placeholderTextColor='#888'
+            value={weight}
+            onChangeText={(value) => setWeight(value)}
+            keyboardType='numeric'
+          />
+        </View>
+        <View>
+          <TouchableOpacity style={styles.button} onPress={updateDetails}>
+            <Text style={styles.buttonText}>Next</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-      <View style={{ marginHorizontal: 20 }}>
-        <Text style={{ marginBottom: 10, alignSelf: 'center', marginTop: 10 }}>What is your gender?</Text>
-        <SelectList
-          setSelected={(value: any) => setGender(value)}
-          data={dropdown_data_gender}
-          save='value'
-          search={false}
-        />
-      </View>
-      <View style={{ marginHorizontal: 20 }}>
-        <Text style={{ marginTop: 10, alignSelf: 'center' }}>What is your age?</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Age"
-          placeholderTextColor="#888"
-          value={age}
-          onChangeText={(value) => setAge(value)}
-          keyboardType="numeric"
-        />
-      </View>
-      <View style={{ marginHorizontal: 20 }}>
-        <Text style={{ alignSelf: 'center' }}>What is your height?</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Height (in cm)"
-          placeholderTextColor="#888"
-          value={height}
-          onChangeText={(value) => setHeight(value)}
-          keyboardType="numeric"
-        />
-      </View>
-      <View style={{ marginHorizontal: 20 }}>
-        <Text style={{ alignSelf: 'center' }}>What is your weight?</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Weight (in kg)"
-          placeholderTextColor="#888"
-          value={weight}
-          onChangeText={(value) => setWeight(value)}
-          keyboardType="numeric"
-        />
-      </View>
-      <View>
-        <TouchableOpacity style={styles.button} onPress={updateDetails}>
-          <Text style={styles.buttonText}>Next</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+    </KeyboardAvoidingView>
   )
 }
 
 const styles = StyleSheet.create({
+  keyboardcontainer: {
+    flex: 1,
+    backgroundColor: '#E4FBFF'
+  },
   container: {
     flex: 1,
     backgroundColor: '#E4FBFF',
