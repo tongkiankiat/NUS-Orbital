@@ -1,8 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const request = require('request');
-const clientID = process.env.CLIENT_ID || '555862211cf4418197cbe3afef10a4f0';
-const clientSecret = process.env.CLIENT_SECRET || '8bc1bc3a25b84b49b5f6e9ec9d804ac4';
+const clientID = process.env.CLIENT_ID;
+const clientSecret = process.env.CLIENT_SECRET;
 let accessToken = '';
 let tokenExpiresAt = 0;
 
