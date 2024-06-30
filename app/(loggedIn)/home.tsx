@@ -1,52 +1,23 @@
-import { View, Text, TouchableOpacity, StyleSheet, Image, StatusBar } from 'react-native';
+import { View, StyleSheet, StatusBar, TouchableOpacity } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { router } from 'expo-router';
 import { supabase } from '../../lib/supabase';
+import SharedHeader from '../components/sharedheader';
+import { Text } from 'react-native';
 
 // read data for NUS gym capacity
 
-
 const MainScreen = () => {
-  const [username, setUsername] = useState<any>('');
-  
+
   // signing out the user
   const logOut = async () => {
     const { error } = await supabase.auth.signOut();
-    router.push("/");
-  }
-
-  // fetch username from database
-  const fetchUsername = async () => {
-    try {
-      // initialize user from supabase.auth
-      const user = await supabase.auth.getUser();
-      const uuid = user.data.user?.id;
-      if (!user) {
-        console.log("No such user !");
-        return;
-      }
-
-      const { data, error } = await supabase.from('users').select('username').eq('id', uuid).single();
-
-      setUsername(data?.username);
-    
-    } catch (error) {
-      console.error("Error fetching documents: ", error);
-    }
-  }
-
-  useEffect(() => {
-    fetchUsername();
-  }, []);
+    router.push('/');
+  };
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Image source={require('../../assets/images/Logo.png')} style={styles.profileLogo} />
-        <Text style={styles.welcomeText}>Welcome, {username}</Text>
-        <Image source={require('../../assets/images/Logo.png')} style={styles.appLogo} />
-      </View>
-
+      <SharedHeader />
       <View style={styles.body}>
         <Text style={styles.bodyText}>What would you like to do today?</Text>
         <TouchableOpacity style={styles.button} onPress={logOut}>
