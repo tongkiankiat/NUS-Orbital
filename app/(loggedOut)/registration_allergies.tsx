@@ -11,16 +11,16 @@ const Register_allergies = () => {
   const [loading, setLoading] = useState(false);
 
   const data = [
-    { key: '1', value: 'Milk' },
-    { key: '2', value: 'Egg' },
-    { key: '3', value: 'Fish' },
-    { key: '4', value: 'Shellfish' },
-    { key: '5', value: 'Nuts' },
-    { key: '6', value: 'Peanuts' },
-    { key: '7', value: 'Gluten' },
-    { key: '8', value: 'Soy' },
-    { key: '9', value: 'Sesame' },
-    { key: '10', value: 'Milk' }
+    { key: '1', value: 'Egg' },
+    { key: '2', value: 'Fish' },
+    { key: '3', value: 'Gluten' },
+    { key: '4', value: 'Lactose' },
+    { key: '5', value: 'Milk' },
+    { key: '6', value: 'Nuts' },
+    { key: '7', value: 'Peanuts' },
+    { key: '8', value: 'Sesame' },
+    { key: '9', value: 'Shellfish' },
+    { key: '10', value: 'Soy' }
   ];
 
   const updateDetails = async () => {
