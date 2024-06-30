@@ -107,10 +107,8 @@ const Meals = () => {
     try {
       // ***IMPT, USE LOCALHOST FOR DEVELOPMENT PURPOSES, NOT RENDER SERVER***
 
-      // const response = await axios.post('https://nus-orbital.onrender.com/api/proxy', {
-      //   item: searchTerm,
-      // });
-      const ingredientResponse = await axios.post('http://192.168.1.142:3000/api/proxy', { item: search }); {/* For the IP address here, use your network's IP, use 'ipconfig' in powershell/terminal to check. Afterwards, whitelist your public IP address (https://www.whatismyip.com/) in FatSecretAPI website*/ }
+      const ingredientResponse = await axios.post('https://nus-orbital.onrender.com/api/proxy', {item: search,});
+      // const ingredientResponse = await axios.post('http://192.168.1.142:3000/api/proxy', { item: search }); {/* For the IP address here, use your network's IP, use 'ipconfig' in powershell/terminal to check. Afterwards, whitelist your public IP address (https://www.whatismyip.com/) in FatSecretAPI website*/ }
       const parser = new XMLParser({
         ignoreAttributes: false,
         attributeNamePrefix: '',

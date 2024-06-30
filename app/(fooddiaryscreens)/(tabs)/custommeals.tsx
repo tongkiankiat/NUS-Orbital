@@ -169,10 +169,8 @@ const CustomMeals = () => {
     try {
       // ***IMPT, USE LOCALHOST FOR DEVELOPMENT PURPOSES, NOT RENDER SERVER***
 
-      // const response = await axios.post('https://nus-orbital.onrender.com/api/proxy', {
-      //   item: searchTerm,
-      // });
-      const ingredientResponse = await axios.post('http://192.168.1.142:3000/api/proxy', { item: search });
+      const ingredientResponse = await axios.post('https://nus-orbital.onrender.com/api/proxy', {item: search,});
+      // const ingredientResponse = await axios.post('http://192.168.1.142:3000/api/proxy', { item: search });
       const parser = new XMLParser({
         ignoreAttributes: false,
         attributeNamePrefix: '',
