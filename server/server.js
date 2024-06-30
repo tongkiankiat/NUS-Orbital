@@ -30,10 +30,8 @@ function getAccessToken(callback) {
   request(options, function (error, response, body) {
     if (error) {
       console.error('Error getting access token: ', error);
-      console.log(clientID, clientSecret);
       callback(error);
     } else {
-      console.log(clientID, clientSecret);
       if (response.statusCode === 200) {
         accessToken = body.access_token;
         tokenExpiresAt = Date.now() + body.expires_in * 1000;
