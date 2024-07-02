@@ -4,10 +4,11 @@ import { Feather, Fontisto } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { supabase } from '../../lib/supabase';
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
+import { DateTime } from 'luxon';
 
 const ViewMeal = () => {
   // Define useState variables
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState(DateTime.now().setZone('Asia/Singapore').toISODate());
   const [loading, setLoading] = useState(false);
   const [meals, setMeals] = useState<[]>([])
 
@@ -39,12 +40,12 @@ const ViewMeal = () => {
     const uuid = user.data.user?.id;
     setLoading(true);
     try {
-      const { data: mealsData, error } = await supabase.from('meals').select('*').eq('id', uuid).eq('date', date.toISOString().split('T')[0]);
+      const { data: mealsData, error } = await supabase.from('meals').select('*').eq('id', uuid).eq('date', date);
       if (error) {
         Alert.alert('Error occured fetching meals: ', error.message);
       } else if (mealsData) {
         if (mealsData.length === 0) {
-          console.log(`No recorded meals found on ${new Date().toISOString().split('T')[0]}!`);
+          console.log(`No recorded meals found on ${date}!`);
           setMeals([]);
         } else {
           setMeals(mealsData);
@@ -61,16 +62,24 @@ const ViewMeal = () => {
     getMeals();
   }, [date])
 
-  const renderMealItem = ({ item }) => (
-    <View style={styles.mealItem}>
-      <Text style={styles.mealName}>{item.meal.food_name}</Text>
-      <Text>{item.meal.food_description}</Text>
-      <Text>Calories: {item.meal.calories}</Text>
-      <Text>Protein: {item.meal.protein}g</Text>
-      <Text>Carbs: {item.meal.carbs}g</Text>
-      <Text>Fats: {item.meal.fats}g</Text>
-    </View>
-  );
+  const renderMealItem = ({ item }) => {
+    const mealName = item.meal_name || item.meal.food_name;
+    const foodDescription = item.meal.food_description || item.meal[0].food_description;
+    const calories = item.meal.calories || item.meal[0].calories;
+    const protein = item.meal.protein || item.meal[0].protein;
+    const carbs = item.meal.carbs || item.meal[0].protein;
+    const fats = item.meal.fats || item.meal[0].fats;
+    return (
+      <View style={styles.mealItem}>
+        <Text style={styles.mealName}>{mealName}</Text>
+        <Text>{foodDescription}</Text>
+        <Text>Calories: {calories}</Text>
+        <Text>Protein: {protein}g</Text>
+        <Text>Carbs: {carbs}g</Text>
+        <Text>Fats: {fats}g</Text>
+      </View>
+    )
+  };
 
   const filterMealsByTime = (mealTime) => {
     return meals.filter(meal => meal.meal_time === mealTime);
@@ -82,10 +91,10 @@ const ViewMeal = () => {
         <TouchableOpacity style={styles.headerarrow} onPress={() => router.back()}>
           <Feather name="arrow-left" size={20} color="black" />
         </TouchableOpacity>
-        <Text style={{flex: 1, textAlign: 'center', fontSize: 24, alignItems: 'center', paddingRight: 30}}>View Meals</Text>
+        <Text style={{ flex: 1, textAlign: 'center', fontSize: 24, alignItems: 'center', paddingRight: 30 }}>View Meals</Text>
       </View>
       <View style={styles.dateheader}>
-        <Text style={{ textAlign: 'center', fontSize: 20, flex: 1, paddingLeft: 30 }}>{date.toISOString().split('T')[0]}</Text>
+        <Text style={{ textAlign: 'center', fontSize: 20, flex: 1, paddingLeft: 30 }}>{date}</Text>
         <TouchableOpacity onPress={() => showDatePicker()}>
           <Fontisto name="date" size={24} color="black" style={{ paddingRight: 5 }} />
         </TouchableOpacity>
@@ -94,7 +103,7 @@ const ViewMeal = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Breakfast</Text>
           {filterMealsByTime('Breakfast').length === 0 ? (
-            <Text>No recorded meals found on {date.toISOString().split('T')[0]}!</Text>
+            <Text>No recorded meals found on {DateTime.fromJSDate(date).toFormat('yyyy-MM-dd')}!</Text>
           ) : (
             <FlatList
               data={filterMealsByTime('Breakfast')}
@@ -106,7 +115,7 @@ const ViewMeal = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Lunch</Text>
           {filterMealsByTime('Lunch').length === 0 ? (
-            <Text>No recorded meals found on {date.toISOString().split('T')[0]}!</Text>
+            <Text>No recorded meals found on {DateTime.fromJSDate(date).toFormat('yyyy-MM-dd')}!</Text>
           ) : (
             <FlatList
               data={filterMealsByTime('Lunch')}
@@ -118,7 +127,7 @@ const ViewMeal = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Dinner</Text>
           {filterMealsByTime('Dinner').length === 0 ? (
-            <Text>No recorded meals found on {date.toISOString().split('T')[0]}!</Text>
+            <Text>No recorded meals found on {DateTime.fromJSDate(date).toFormat('yyyy-MM-dd')}!</Text>
           ) : (
             <FlatList
               data={filterMealsByTime('Dinner')}
@@ -130,7 +139,7 @@ const ViewMeal = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Snacks</Text>
           {filterMealsByTime('Snacks').length === 0 ? (
-            <Text>No recorded meals found on {date.toISOString().split('T')[0]}!</Text>
+            <Text>No recorded meals found on {DateTime.fromJSDate(date).toFormat('yyyy-MM-dd')}!</Text>
           ) : (
             <FlatList
               data={filterMealsByTime('Snacks')}
@@ -154,7 +163,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: { width:0, height: 2 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 5
   },
