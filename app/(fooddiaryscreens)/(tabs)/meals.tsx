@@ -5,6 +5,7 @@ import { XMLParser } from 'fast-xml-parser';
 import { router, useGlobalSearchParams } from 'expo-router';
 import { supabase } from '../../../lib/supabase';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { DateTime } from 'luxon';
 
 interface Ingredient {
   food_id: string;
@@ -89,7 +90,7 @@ const Meals = () => {
     }
     const uuid = user.data.user?.id;
     try {
-      const { error: sendError } = await supabase.from('meals').insert({ 'id': uuid, meal: selectedRecipe, meal_time: meal_time });
+      const { error: sendError } = await supabase.from('meals').insert({ 'id': uuid, meal: selectedRecipe, meal_time: meal_time, date: DateTime.now().setZone('Asia/Singapore').toISODate()});
       if (!sendError) {
         Alert.alert('Success!', `Meal Logged for ${meal_time}`);
       } else {
