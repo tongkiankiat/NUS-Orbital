@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import React from 'react'
 import { supabase } from '../../lib/supabase';
 import { router } from 'expo-router';
+import { Feather } from '@expo/vector-icons';
 
 const profile = () => {
   // signing out the user
@@ -12,6 +13,9 @@ const profile = () => {
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity style={styles.headerarrow} onPress={() => router.back()}>
+          <Feather name="arrow-left" size={20} color="black" />
+        </TouchableOpacity>
       <TouchableOpacity style={styles.button} onPress={logOut}>
           <Text style={styles.buttonText}>Logout</Text>
         </TouchableOpacity>
@@ -36,7 +40,13 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
-  }
+  },
+  headerarrow: {
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    justifyContent: "center",
+    alignItems: "flex-start"
+  },
 })
 
 export default profile
