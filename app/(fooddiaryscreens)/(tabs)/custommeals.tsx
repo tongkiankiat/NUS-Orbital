@@ -51,7 +51,6 @@ const CustomMeals = () => {
 
   // Allergies array passed from Meals
   const { allergies } = useLocalSearchParams();
-  const { meal_time } = useLocalSearchParams();
 
   const closeModal = () => {
     setModalVisible(false);
@@ -77,8 +76,14 @@ const CustomMeals = () => {
       mealIngredients: ingredients,
     });
     console.log(customMeal);
+    
     //logic for sending meal over to db
     try {
+      if (!customMeal) {
+        console.error('customMeal is null or undefined:', customMeal);
+        setLoading(false);
+        return;
+      }
       const { error: sendError } = await supabase.from('custom_meals').insert({'id': uuid, 'meal': customMeal, 'meal_name': mealName});
       if (!sendError) {
         Alert.alert('Success!', `Custom Meal logged!`);
@@ -291,7 +296,7 @@ const CustomMeals = () => {
             </Text>
           </Text>
         </View>
-        <TouchableOpacity onPress={createCustomMeal} style={styles.addmeal_button}>
+        <TouchableOpacity onPress={() => createCustomMeal()} style={styles.addmeal_button}>
           <Text style={{ color: 'white' }}>Add Meal</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => router.back()} style={styles.cancel_button}>
@@ -377,7 +382,7 @@ const CustomMeals = () => {
                       }
                     />
                   </View>
-                  <TouchableOpacity onPress={handleAddIngredient} style={styles.confirmButton}>
+                  <TouchableOpacity onPress={() => handleAddIngredient(selectedFood)} style={styles.confirmButton}>
                     <Text style={styles.confirmButtonText}>Add</Text>
                   </TouchableOpacity>
                 </View>
