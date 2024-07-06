@@ -32,7 +32,7 @@ Notifications.setNotificationHandler({
 });
 
 // this function will send the notification to the user's device
-const generateNotification = async (meal) => {
+const generateNotification = async (meal: any) => {
   Notifications.scheduleNotificationAsync({
     content: {
       title: 'NUtriSync',
@@ -83,7 +83,7 @@ const UpdateDiary = () => {
       // This checks if meals have been logged
       const { data: LoggedMeals, error: getError_log } = await supabase.from('meals').select('meal_time').eq('id', uuid).eq('date', currentDate_SG)
       if (getError_log) {
-        Alert.alert('Error occured retrieving meal times: ', getError_log.message);
+        Alert.alert('Error occured retrieving meal logging data: ', getError_log.message);
       } else if (LoggedMeals) {
         LoggedMeals.forEach((meal) => {
           if (meal.meal_time === 'Breakfast') setBreakfast(true);
@@ -114,7 +114,6 @@ const UpdateDiary = () => {
       const mealTime = now_sg.hour(hour).minute(minute).second(0);
       return mealTime.isAfter(now_sg);
     });
-
     // If last meal (Dinner) is already over, set next meal to Breakfast
     if (nextMealIndex === -1) {
       nextMealIndex = 0;
@@ -168,8 +167,8 @@ const UpdateDiary = () => {
         const newTimeLeft = calculateTimeLeft();
         setTimeleft(newTimeLeft);
         if (newTimeLeft <= 0) {
-          const newIndex = (updateMeal() + 1) % meal_time_array.length;
-          generateNotification(meals[newIndex]);
+          generateNotification(meals[meal_index])
+          const newIndex = (updateMeal()) % meal_time_array.length;
           setIndex(newIndex);
           setNextMeal(meals[newIndex]);
         }
@@ -235,7 +234,6 @@ const UpdateDiary = () => {
     try {
       const { data: meals, error: mealError } = await supabase.from('meals').select('meal').eq('id', uuid).eq('date', currentDate_SG).eq('custom_meal', false);
       const { data: custom_meals, error: customMealError } = await supabase.from('meals').select('meal').eq('id', uuid).eq('date', currentDate_SG).eq('custom_meal', true);
-      console.log(meals, custom_meals)
       if (mealError || customMealError) {
         Alert.alert('Error occured retrieving calories: ', mealError?.message && customMealError?.message);
       } else if (meals && custom_meals) {
