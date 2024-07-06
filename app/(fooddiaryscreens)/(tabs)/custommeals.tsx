@@ -76,7 +76,6 @@ const CustomMeals = () => {
       mealIngredients: ingredients,
     });
     console.log(customMeal);
-    
     //logic for sending meal over to db
     try {
       if (!customMeal) {
@@ -105,7 +104,7 @@ const CustomMeals = () => {
     }
   };
 
-  const handleAddIngredient = (item: Ingredient) => {
+  const handleAddIngredient = (mealName: string, item: Ingredient) => {
     selectedFood && setIngredients(ingredients.concat([selectedFood]));
     ingredients.map((ingredient, index) => {
       if (selectedFood && selectedFood.food_id == ingredient.food_id) {
@@ -133,12 +132,17 @@ const CustomMeals = () => {
       ),
       fats: ingredients.reduce((acc, obj) => acc + obj.fats * obj.quantity, 0),
     });
+    const update_meal = {
+      name: mealName,
+      mealIngredients: ingredients
+    }
     // console.log(totalMacros);
     console.log('added');
     setModalVisible(false);
     setSearchResults([]);
     setSelectedFood(null);
     setNoResults(false);
+    setMeal(update_meal);
   };
 
   const handleQuantity = (quantity: number) => {
@@ -177,7 +181,7 @@ const CustomMeals = () => {
       // const response = await axios.post('https://nus-orbital.onrender.com/api/proxy', {
       //   item: searchTerm,
       // });
-      const ingredientResponse = await axios.post('http://192.168.1.142:3000/api/proxy', { item: search });
+      const ingredientResponse = await axios.post('http://192.168.1.141:3000/api/proxy', { item: search });
       const parser = new XMLParser({
         ignoreAttributes: false,
         attributeNamePrefix: '',
@@ -382,7 +386,7 @@ const CustomMeals = () => {
                       }
                     />
                   </View>
-                  <TouchableOpacity onPress={() => handleAddIngredient(selectedFood)} style={styles.confirmButton}>
+                  <TouchableOpacity onPress={() => handleAddIngredient(mealName, selectedFood)} style={styles.confirmButton}>
                     <Text style={styles.confirmButtonText}>Add</Text>
                   </TouchableOpacity>
                 </View>
