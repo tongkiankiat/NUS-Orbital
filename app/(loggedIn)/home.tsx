@@ -37,7 +37,7 @@ const MainScreen = () => {
     })();
   `;
 
-  const handleMessage = (event) => {
+  const handleMessage = (event: any) => {
     const scrapedData = JSON.parse(event.nativeEvent.data);
     setData(scrapedData);
   };
@@ -47,7 +47,7 @@ const MainScreen = () => {
     fetchCapacity();
   }, []);
 
-  const renderCrowdednessColor = (crowdedness) => {
+  const renderCrowdednessColor = (crowdedness: any) => {
     if (crowdedness >= 0.75) {
       return 'red';
     } else if (crowdedness >= 0.5) {
@@ -55,12 +55,6 @@ const MainScreen = () => {
     } else {
       return 'green';
     }
-  };
-
-  // signing out the user
-  const logOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    router.push('/');
   };
 
   return (
