@@ -30,6 +30,7 @@ const AnatomyScreen = () => {
 
   return (
     <View style={styles.container}>
+      <Text style={{textAlign: 'center', fontSize: 16, padding: 5}}>Click on a muscle group to view the exercises!</Text>
       <View style={styles.flipcard}>
         <FlipCard
           friction={6}
@@ -204,13 +205,12 @@ const AnatomyScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#E4FBFF',
-    paddingTop: StatusBar.currentHeight
+    backgroundColor: '#E4FBFF'
   },
   flipcard: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   image: {
     width: undefined,
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 5,
     marginVertical: 10,
-    marginBottom: 50,
+    marginBottom: 30,
   },
   buttonText: {
     color: 'white',
