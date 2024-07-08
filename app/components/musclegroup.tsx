@@ -197,12 +197,12 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: '#fff',
-    padding: 20,
+    padding: 25,
     borderRadius: 10,
     width: '80%',
     elevation: 5,
-    maxHeight: screenHeight,
-    maxWidth: screenWidth
+    maxHeight: screenHeight * 0.8,
+    maxWidth: screenWidth,
   },
   exercisetext: {
     fontSize: 16,
