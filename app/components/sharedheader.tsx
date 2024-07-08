@@ -52,10 +52,6 @@ const SharedHeader = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#E4FBFF',
-  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
