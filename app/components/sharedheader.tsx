@@ -1,6 +1,5 @@
 import { View, Text, StatusBar, TouchableOpacity, StyleSheet, FlatList } from 'react-native'
 import React, { useState, useEffect } from 'react'
-import Modal from 'react-native-modal'
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { supabase } from '../../lib/supabase';
@@ -9,12 +8,6 @@ const SharedHeader = () => {
   const [username, setUsername] = useState<any>('');
   const [modalvisible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  const renderNotification = ({ item }) => {
-    <View>
-      <Text>{item}</Text>
-    </View>
-  };
 
   // fetch username from database
   const fetchUsername = async () => {
@@ -59,10 +52,6 @@ const SharedHeader = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#E4FBFF',
-  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
