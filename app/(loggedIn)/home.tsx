@@ -4,13 +4,14 @@ import { router } from 'expo-router';
 import { supabase } from '../../lib/supabase';
 import SharedHeader from '../components/sharedheader';
 import WebView from 'react-native-webview';
+import { UsernameContext } from '../context/UsernameContext';
 
 const MainScreen = () => {
-
-  // read data for NUS gym capacity
+  // Define useState variables here
   const [data, setData] = useState([]);
   const webViewRef = useRef(null);
 
+  // Retrieve data on NUS gyms
   const fetchCapacity = () => {
     webViewRef.current?.reload();
   };
