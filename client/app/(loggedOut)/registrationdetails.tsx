@@ -12,12 +12,6 @@ const RegistrationDetails = () => {
   const [gender, setGender] = useState('')
   const [loading, setLoading] = useState(false);
 
-  const dropdown_data_goals = [
-    { key: '1', value: 'Lose Weight' },
-    { key: '2', value: 'Gain Weight' },
-    { key: '3', value: 'Maintain Weight' }
-  ];
-
   const dropdown_data_gender = [
     { key: '1', value: 'Male' },
     { key: '2', value: 'Female' }
@@ -36,7 +30,6 @@ const RegistrationDetails = () => {
       };
 
       const { error: updateError } = await supabase.from('users').update({
-        goals: goals,
         height: parseInt(height, 10),
         weight: parseInt(weight, 10),
         age: parseInt(age, 10),
@@ -53,7 +46,12 @@ const RegistrationDetails = () => {
       return;
     } finally {
       setLoading(false);
-      router.push('registration_fitness');
+      router.push({pathname: 'registration_fitness', params: {
+        height: height,
+        weight: weight,
+        age: age,
+        gender: gender
+      }});
     }
   };
 

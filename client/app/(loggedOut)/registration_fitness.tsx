@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Alert, KeyboardAvoidingView } from 'react-native';
 import { SelectList } from 'react-native-dropdown-select-list';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { supabase } from '../../lib/supabase';
 
 const RegistrationDetails = () => {
+  // Retrieve params from previous screen 'registrationdetails.tsx'
+  const {height, weight, age, gender} = useLocalSearchParams();
+
+  // Define useState variables
   const [goals, setGoals] = useState('');
   const [active_level, setActiveLevel] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -48,7 +52,14 @@ const RegistrationDetails = () => {
       return;
     } finally {
       setLoading(false);
-      router.push('registration_allergies');
+      router.push({pathname: 'registration_allergies', params: {
+        height: height,
+        weight: weight,
+        age: age,
+        gender: gender,
+        goals: goals,
+        active_level: active_level
+      }});
     }
   };
 

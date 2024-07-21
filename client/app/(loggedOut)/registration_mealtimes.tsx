@@ -1,12 +1,16 @@
 import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Alert, KeyboardAvoidingView } from 'react-native';
 import React, { useState } from 'react';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { Feather } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 import { supabase } from '../../lib/supabase';
 
 const Register_mealtimes = () => {
+  // Get params from previous screen: 'registration_allergies'
+  const { height, weight, age, gender, goals, active_level, allergies } = useLocalSearchParams();
+
+  // Define useState variables
   const [timeBfast, setBfastTime] = useState(new Date());
   const [timeLunch, setLunchTime] = useState(new Date());
   const [timeDinner, setDinnerTime] = useState(new Date());
@@ -72,16 +76,22 @@ const Register_mealtimes = () => {
       return;
     } finally {
       setLoading(false);
-      Alert.alert('Success!', 'Registration Complete!', [
-        { text: 'OK', onPress: () => router.push('../(loggedIn)/home') }
-      ]);
+      router.push({pathname: 'generate_mealplan', params: {
+        height: height,
+        weight: weight,
+        age: age,
+        gender: gender,
+        goals: goals,
+        active_level: active_level,
+        allergies: allergies
+      }});
     }
   };
 
   return (
     <KeyboardAvoidingView style={styles.keyboardcontainer}>
       <View style={styles.container}>
-        <TouchableOpacity onPress={() => { router.push('/') }} style={{ paddingHorizontal: 20 }}>
+        <TouchableOpacity onPress={() => { router.back() }} style={{ paddingHorizontal: 20 }}>
           <Feather name='arrow-left' size={20} color='black' />
         </TouchableOpacity>
         <View style={styles.body}>

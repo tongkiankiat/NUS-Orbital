@@ -1,12 +1,15 @@
 import { Text, TouchableOpacity, View, StyleSheet, StatusBar, Alert, KeyboardAvoidingView } from 'react-native';
 import React, { useState } from 'react';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { MultipleSelectList } from 'react-native-dropdown-select-list';
 import { Feather } from '@expo/vector-icons';
 import { supabase } from '../../lib/supabase';
 
 const Register_allergies = () => {
+  // Get params from previous screen: 'registrationfitness'
+  const { height, weight, age, gender, goals, active_level } = useLocalSearchParams();
 
+  // Define useState variables
   const [selected, setSelected] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -49,14 +52,22 @@ const Register_allergies = () => {
       return;
     } finally {
       setLoading(false);
-      router.push('registration_mealtimes');
+      router.push({pathname: 'registration_mealtimes', params: {
+        height: height,
+        weight: weight,
+        age: age,
+        gender: gender,
+        goals: goals,
+        active_level: active_level,
+        allergies: selected
+      }});
     }
   };
 
   return (
     <KeyboardAvoidingView style={styles.keyboardcontainer}>
       <View style={styles.container}>
-        <TouchableOpacity onPress={() => { router.push('registrationdetails') }} style={{ paddingHorizontal: 20 }}>
+        <TouchableOpacity onPress={() => { router.back() }} style={{ paddingHorizontal: 20 }}>
           <Feather name='arrow-left' size={20} color='black' />
         </TouchableOpacity>
         <View style={styles.multipleselectlist}>
