@@ -1,4 +1,4 @@
-  import RootLayout from "./app/_layout"
+  import RootLayout from './app/_layout'
 
   const App = () => {
     return (

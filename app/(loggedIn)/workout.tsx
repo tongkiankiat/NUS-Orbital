@@ -27,7 +27,7 @@ const Workout = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#E4FBFF',
+    backgroundColor: '#E4FBFF'
   }
 });
 
