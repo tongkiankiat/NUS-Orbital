@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, TextInput, Text, StyleSheet, TouchableOpacity, ActivityIndicator, AppState, Alert, KeyboardAvoidingView } from 'react-native';
 import { router } from 'expo-router';
-import { supabase } from '../../lib/supabase'
+import { supabase } from '../../lib/supabase';
+import { Feather } from '@expo/vector-icons';
 
 AppState.addEventListener('change', (state) => {
   if (state === 'active') {
@@ -34,6 +35,9 @@ const LogInScreen = () => {
   return (
     <KeyboardAvoidingView style={styles.keyboardcontainer}>
       <View style={styles.container}>
+        <TouchableOpacity onPress={() => { router.back() }} style={{ paddingHorizontal: 20 }}>
+          <Feather name='arrow-left' size={20} color='black' />
+        </TouchableOpacity>
         <TextInput
           style={styles.input}
           placeholder='Email'
