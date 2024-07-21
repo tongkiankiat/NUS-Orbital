@@ -16,7 +16,6 @@ services:
       dockerfile: /model/frontend/Dockerfile
     image: frontend:${TAG}
     ports:
-      - 8501:8501
       - 5000:5000
     networks:
       - project_network
@@ -32,7 +31,8 @@ services:
       dockerfile: /model/backend/Dockerfile
     image: backend:${TAG}
     volumes:
-      - 'C:\Users\kkton\OneDrive\Documents\Orbital\navigate_NUtriSync\server\model\backend\main.py:/app/backend/main.py'
+      - ./model/backend/main.py:/app/backend/main.py
+      - ./model/backend/model.py:/app/backend/model.py
     ports:
       - 8080:8080
     networks:
