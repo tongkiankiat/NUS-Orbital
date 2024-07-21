@@ -1,7 +1,6 @@
 import { Stack } from 'expo-router';
-import React, { useState } from 'react';
-import { ActivityIndicator, View, StyleSheet } from 'react-native';
-import useAuth from '../hooks/useAuth';
+import React from 'react';
+import { StyleSheet } from 'react-native';
 
 const RootLayout = () => {
     // const [loading, setLoading] = useState(true);
@@ -30,13 +29,5 @@ const RootLayout = () => {
         </Stack>
     )
 };
-
-const styles = StyleSheet.create({
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-});
 
 export default RootLayout;
