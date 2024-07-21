@@ -23,6 +23,7 @@ class Generator:
             'ingredients':self.ingredients,
             'params':self.params
         }
+        print('Request: ', request, flush=True)
         response=requests.post(url='http://backend:8080/predict/',data=json.dumps(request))
         return response
 
@@ -30,7 +31,13 @@ class Generator:
 def generate_recommendations():
         params = request.args.to_dict()
         print('Params: ', params, flush=True)
-        params['weight_change'] = float(params['weight_change'])
+        weight_change = params.get('weight_change')
+        if weight_change == 'Gain Weight':
+            params['weight_change'] = 1.2
+        elif weight_change == 'Maintain Weight':
+            params['weight_change'] = 1.0
+        else:
+            params['weight_change'] = 0.8
         params['weight'] = float(params['weight'])
         params['height'] = float(params['height'])
         params['age'] = int(params['age'])
@@ -41,7 +48,7 @@ def generate_recommendations():
             'snacks': float(params['snacks'])
         }
         params['meals_calories_perc'] = meals_calories_perc
-        params['allergies'] = params.get('allergies', [])
+        allergies = params.get('allergies', '').split(',')
         total_calories=params['weight_change'] * calories_calculator(params)
         recommendations=[]  
         for meal in params['meals_calories_perc']:
@@ -60,7 +67,8 @@ def generate_recommendations():
             try: 
               while len(filtered_recipes) < 5:
                 recommended_recipes = generator.generate().json()['output']
-                filtered_recipes.extend(filter_allergies(params['allergies'], recommended_recipes))
+                print('Recommended Recipes: ', recommended_recipes, flush=True)
+                filtered_recipes.extend(filter_allergies(allergies, recommended_recipes))
                 filtered_recipes = filtered_recipes[:5]
 
               recommendations.append(filtered_recipes)
@@ -73,7 +81,7 @@ def generate_recommendations():
 def calories_calculator(params):
         activites=['Sedentary (Little to no exercise)', 'Lightly Active (Exercise/Sports 1-3 days per week)', 'Moderately Active (Exercise/Sports 3-5 days per week or more)']
         weights=[1.2,1.375,1.55]
-        weight = weights[activites.index(params['activity'])]
+        weight = weights[int(params['activity']) - 1]
         maintain_calories = calculate_bmr(params)*weight
         return maintain_calories
 
