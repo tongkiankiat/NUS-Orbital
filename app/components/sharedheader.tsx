@@ -1,42 +1,12 @@
-import { View, Text, StatusBar, TouchableOpacity, StyleSheet, FlatList } from 'react-native'
-import React, { useState, useEffect } from 'react'
+import { View, Text, StatusBar, TouchableOpacity, StyleSheet } from 'react-native'
+import React, { useContext } from 'react'
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { supabase } from '../../lib/supabase';
+import { UsernameContext } from '../context/UsernameContext';
 
 const SharedHeader = () => {
-  const [username, setUsername] = useState<any>('');
-  const [modalvisible, setVisible] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  // fetch username from database
-  const fetchUsername = async () => {
-    setLoading(true);
-    try {
-      // initialize user from supabase.auth
-      const user = await supabase.auth.getUser();
-      if (!user) {
-        console.log('No such user !');
-        return;
-      }
-      const uuid = user.data.user?.id;
-
-      const { data, error } = await supabase.from('users').select('username').eq('id', uuid).single();
-      if (error) {
-        console.error('Error getting username: ', error);
-      } else {
-        setUsername(data?.username);
-      }
-    } catch (error) {
-      console.error('Error fetching documents: ', error);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    fetchUsername();
-  }, []);
+  // Retrieve username
+  const username = useContext(UsernameContext);
 
   return (
     <View style={styles.header}>
@@ -59,7 +29,8 @@ const styles = StyleSheet.create({
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#CCCCCC',
-    paddingTop: StatusBar.currentHeight
+    paddingTop: StatusBar.currentHeight,
+    backgroundColor: '#092840'
   },
   welcomeText: {
     fontSize: 18,
