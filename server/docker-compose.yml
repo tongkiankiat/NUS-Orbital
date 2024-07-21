@@ -1,0 +1,42 @@
+version: '1.0'
+
+services:
+  expo-go-frontend:
+    build:
+      context: .
+      dockerfile: /fatsecretAPI/Dockerfile
+    image: expo-go-frontend:${TAG}
+    ports:
+      - 3000:3000
+      - 10000:10000
+
+  frontend:
+    build:
+      context: .
+      dockerfile: /model/frontend/Dockerfile
+    image: frontend:${TAG}
+    ports:
+      - 8501:8501
+      - 5000:5000
+    networks:
+      - project_network
+    depends_on:
+      - backend
+    volumes:
+      - ./model/frontend/Generate_Recommendations.py:/app/frontend/Generate_Recommendations.py
+
+
+  backend:
+    build:
+      context: .
+      dockerfile: /model/backend/Dockerfile
+    image: backend:${TAG}
+    volumes:
+      - 'C:\Users\kkton\OneDrive\Documents\Orbital\navigate_NUtriSync\server\model\backend\main.py:/app/backend/main.py'
+    ports:
+      - 8080:8080
+    networks:
+      - project_network
+
+networks:
+  project_network:

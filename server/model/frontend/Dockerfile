@@ -4,7 +4,7 @@ FROM python:3.10.8
 
 RUN mkdir -p app/frontend
 
-COPY Streamlit_Frontend app/frontend
+COPY /model/frontend app/frontend
 
 WORKDIR /app/frontend
 
