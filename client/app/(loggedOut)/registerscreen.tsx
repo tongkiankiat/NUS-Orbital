@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, TextInput, TouchableOpacity, ActivityIndicator,
 import { router } from 'expo-router';
 import { supabase } from '../../lib/supabase';
 import { Alert } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 
 const RegisterScreen = () => {
   const [username, setusername] = useState('');
@@ -14,13 +15,13 @@ const RegisterScreen = () => {
   const signUp = async () => {
     setLoading(true);
     if (createpassword === confirmpassword) {
-      const { data: { session }, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email: email,
-        password: createpassword,
+        password: createpassword
       });
       if (error) {
         Alert.alert(error.message);
-        console.log(error.message);
+        console.error(error.message);
         setLoading(false);
         return;
       };
@@ -49,6 +50,9 @@ const RegisterScreen = () => {
   return (
     <KeyboardAvoidingView style={styles.keyboardcontainer}>
       <View style={styles.container}>
+        <TouchableOpacity style={styles.backButton} onPress={() => { router.back() }}>
+          <Feather name='arrow-left' size={20} color='black' />
+        </TouchableOpacity>
         <Text style={styles.registerfont}>Username</Text>
         <TextInput
           style={styles.input}
@@ -110,12 +114,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#E4FBFF',
     paddingTop: StatusBar.currentHeight
   },
-  font: {
-    color: 'black',
-    fontSize: 24,
-    fontWeight: 'bold',
-    paddingBottom: 90,
-    paddingTop: 20
+  backButton: {
+    position: 'absolute',
+    top: StatusBar.currentHeight,
+    left: 10,
+    zIndex: 1
   },
   registerfont: {
     color: 'black',
