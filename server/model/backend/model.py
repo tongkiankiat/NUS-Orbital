@@ -29,7 +29,11 @@ def extract_data(dataframe,ingredients):
 def extract_ingredient_filtered_data(dataframe,ingredients):
     extracted_data=dataframe.copy()
     regex_string=''.join(map(lambda x:f'(?=.*{x})',ingredients))
-    extracted_data=extracted_data[extracted_data['RecipeIngredientParts'].str.contains(regex_string,regex=True,flags=re.IGNORECASE)]
+    # extracted_data=extracted_data[extracted_data['RecipeIngredientParts'].str.contains(regex_string,regex=True,flags=re.IGNORECASE)]
+    if 'RecipeIngredientParts' in extracted_data.columns:
+      extracted_data = extracted_data[extracted_data['RecipeIngredientParts'].str.contains(regex_string, regex=True, flags=re.IGNORECASE)]
+    else:
+      print("Key 'RecipeIngredientParts' not found in DataFrame")
     return extracted_data
 
 def apply_pipeline(pipeline,_input,extracted_data):
@@ -61,5 +65,6 @@ def output_recommended_recipes(dataframe):
             recipe['RecipeInstructions']=extract_quoted_strings(recipe['RecipeInstructions'])
     else:
         output=None
+    print('Output: ', output)
     return output
 
