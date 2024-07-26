@@ -3,86 +3,94 @@ import React, { useState, useEffect } from 'react';
 import { Feather, Fontisto } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { supabase } from '../../lib/supabase';
-import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { DateTime } from 'luxon';
+import DateTimePicker from 'react-native-modal-datetime-picker';
+
+interface Ingredient {
+  food_id: number;
+  food_name: string;
+  food_description: string;
+  calories: number;
+  fats: number;
+  carbs: number;
+  protein: number;
+  weight: number;
+  quantity: number;
+  allergens: string[];
+  meal_time: string
+}
 
 const ViewMeal = () => {
   // Define useState variables
-  const [date, setDate] = useState(DateTime.now().setZone('Asia/Singapore').toISODate());
+  // const [date, setDate] = useState(DateTime.now().setZone('Asia/Singapore').toISODate());
+  const [date, setDate] = useState(new Date());
+  const [showModal, setModal] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [meals, setMeals] = useState<[]>([])
+  const [meals, setMeals] = useState<{ meal_id: number, meal_time: string }[]>([]);
+  const [queriedmeals, setQueriedMeals] = useState<Ingredient[]>([]);
+  const [filteredmeals, setFilteredMeals] = useState<Ingredient[]>([]);
+
+ // Fetch meals data from supabase
+ const getMeals = async () => {
+  const user = await supabase.auth.getUser();
+  if (!user) {
+    console.error('No such user!');
+    return;
+  }
+  const uuid = user.data.user?.id;
+  setLoading(true);
+  try {
+    const { data: mealsData, error } = await supabase.from('meals').select('*').eq('id', uuid).eq('date', date);
+    if (error) {
+      Alert.alert('Error occured fetching meals: ', error.message);
+    } else if (mealsData) {
+      if (mealsData.length === 0) {
+        console.log(`No recorded meals found on ${date}!`);
+        setMeals([]);
+      } else {
+        setMeals(mealsData);
+      }
+    }
+  } catch (error) {
+    console.error('Error occured fetching meals: ', error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+useEffect(() => {
+  getMeals();
+}, [date])
 
   // Date Picker Icon; select the date to view meals eaten previously 
-  const onChange = (event: any, selectedDate: any) => {
-    const currentDate = selectedDate || date;
-    setDate(currentDate);
-  };
-
-  const showMode = (currentMode: any) => {
-    DateTimePickerAndroid.open({
-      value: date,
-      onChange,
-      mode: currentMode
-    });
-  };
-
   const showDatePicker = () => {
-    showMode('date');
+    setModal(true);
   };
 
-  // Fetch meals data from supabase
-  const getMeals = async () => {
-    const user = await supabase.auth.getUser();
-    if (!user) {
-      console.error('No such user!');
-      return;
-    }
-    const uuid = user.data.user?.id;
-    setLoading(true);
-    try {
-      const { data: mealsData, error } = await supabase.from('meals').select('*').eq('id', uuid).eq('date', date);
-      if (error) {
-        Alert.alert('Error occured fetching meals: ', error.message);
-      } else if (mealsData) {
-        if (mealsData.length === 0) {
-          console.log(`No recorded meals found on ${date}!`);
-          setMeals([]);
-        } else {
-          setMeals(mealsData);
-        }
-      }
-    } catch (error) {
-      console.error('Error occured fetching meals: ', error);
-    } finally {
-      setLoading(false);
-    }
+  const hideDatePicker = () => {
+    setModal(false);
   };
 
-  useEffect(() => {
-    getMeals();
-  }, [date])
+  const handleConfirm = (date: Date) => {
+    setDate(date)
+    hideDatePicker();
+  };
 
-  const renderMealItem = ({ item }) => {
-    const mealName = item.meal_name || item.meal.food_name;
-    const foodDescription = item.meal.food_description || item.meal[0].food_description;
-    const calories = item.meal.calories || item.meal[0].calories;
-    const protein = item.meal.protein || item.meal[0].protein;
-    const carbs = item.meal.carbs || item.meal[0].protein;
-    const fats = item.meal.fats || item.meal[0].fats;
+  const renderMealItem = ({ item }: { item: Ingredient }) => {
     return (
       <View style={styles.mealItem}>
-        <Text style={styles.mealName}>{mealName}</Text>
-        <Text>{foodDescription}</Text>
-        <Text>Calories: {calories}</Text>
-        <Text>Protein: {protein}g</Text>
-        <Text>Carbs: {carbs}g</Text>
-        <Text>Fats: {fats}g</Text>
+        <Text style={styles.mealName}>{item.food_name}</Text>
+        <Text>{item.food_description}</Text>
+        <Text>Calories: {item.calories}</Text>
+        <Text>Protein: {item.protein}g</Text>
+        <Text>Carbs: {item.carbs}g</Text>
+        <Text>Fats: {item.fats}g</Text>
       </View>
-    )
+    );
   };
 
-  const filterMealsByTime = (mealTime) => {
-    return meals.filter(meal => meal.meal_time === mealTime);
+  const filterMealsByTime = (mealTime: string) => {
+    return queriedmeals.filter(meal => meal.meal_time === mealTime);
   };
 
   return (
@@ -94,10 +102,19 @@ const ViewMeal = () => {
         <Text style={{ flex: 1, textAlign: 'center', fontSize: 24, alignItems: 'center', paddingRight: 30 }}>View Meals</Text>
       </View>
       <View style={styles.dateheader}>
-        <Text style={{ textAlign: 'center', fontSize: 20, flex: 1, paddingLeft: 30 }}>{date}</Text>
-        <TouchableOpacity onPress={() => showDatePicker()}>
-          <Fontisto name="date" size={24} color="black" style={{ paddingRight: 5 }} />
-        </TouchableOpacity>
+        <Text style={{ textAlign: 'center', fontSize: 20, flex: 1, paddingLeft: 30 }}>{DateTime.fromJSDate(date).toFormat('yyyy-MM-dd')}</Text>
+        <>
+          <TouchableOpacity onPress={showDatePicker}>
+            <Fontisto name="date" size={24} color="black" style={{ paddingRight: 5 }} />
+          </TouchableOpacity>
+          <DateTimePicker
+            isVisible={showModal}
+            date={date}
+            mode="date"
+            onConfirm={handleConfirm}
+            onCancel={hideDatePicker}
+          />
+        </>
       </View>
       <View style={{ flex: 1 }}>
         <View style={styles.section}>
