@@ -3,7 +3,6 @@ import { Tabs } from 'expo-router';
 import { MaterialCommunityIcons, Entypo, FontAwesome5, FontAwesome6 } from '@expo/vector-icons';
 import { supabase } from '../../lib/supabase';
 import { UsernameContext } from '../context/UsernameContext';
-import { setStatusBarBackgroundColor } from 'expo-status-bar';
 
 const loggedInLayout = () => {
   // Define useState variables
@@ -42,13 +41,14 @@ const loggedInLayout = () => {
 
   return (
     <UsernameContext.Provider value={username}>
-      <Tabs screenOptions={{ headerShown: false, tabBarActiveTintColor: 'blue', tabBarStyle:{backgroundColor: '#0E3E61'}}}>
+      <Tabs screenOptions={{ headerShown: false, tabBarActiveTintColor: 'blue', tabBarStyle:{backgroundColor: 'blue'}}}>
         <Tabs.Screen
           name='home'
           options={{
             tabBarIcon: ({ color, size }) => (
               <Entypo name='home' size={24} color='black' />
-            )
+            ),
+            tabBarShowLabel: false
           }}
         />
         <Tabs.Screen
@@ -56,7 +56,8 @@ const loggedInLayout = () => {
           options={{
             tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons name='silverware-fork-knife' size={24} color='black' />
-            )
+            ),
+            tabBarShowLabel: false
           }}
         />
         <Tabs.Screen
@@ -64,7 +65,8 @@ const loggedInLayout = () => {
           options={{
             tabBarIcon: ({ color, size }) => (
               <FontAwesome6 name='dumbbell' size={24} color='black' />
-            )
+            ),
+            tabBarShowLabel: false
           }}
         />
         <Tabs.Screen
@@ -72,7 +74,8 @@ const loggedInLayout = () => {
           options={{
             tabBarIcon: ({ color, size }) => (
               <FontAwesome5 name='user-friends' size={24} color='black' />
-            )
+            ),
+            tabBarShowLabel: false
           }}
         />
         <Tabs.Screen
@@ -80,7 +83,8 @@ const loggedInLayout = () => {
           options={{
             tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons name='ticket-percent' size={24} color='black' />
-            )
+            ),
+            tabBarShowLabel: false
           }}
         />
       </Tabs>
