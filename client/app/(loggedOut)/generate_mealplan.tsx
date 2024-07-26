@@ -139,7 +139,8 @@ const styles = StyleSheet.create({
     paddingTop: StatusBar.currentHeight,
     paddingLeft: 20,
     paddingRight: 20,
-    paddingBottom: 20
+    paddingBottom: 20,
+    backgroundColor: '#E4FBFF'
   },
   sectionHeader: {
     fontSize: 18,
