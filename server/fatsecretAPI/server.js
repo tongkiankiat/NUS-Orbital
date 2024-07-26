@@ -11,6 +11,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 
+// Get Access Token
 function getAccessToken(callback) {
   const options = {
     method: 'POST',
@@ -45,6 +46,7 @@ function getAccessToken(callback) {
   });
 }
 
+// Query by searching for food name
 function sendRequest(req, res, token, item) {
   const options = {
     method: 'POST',
@@ -57,6 +59,7 @@ function sendRequest(req, res, token, item) {
       method: 'foods.search.v3',
       search_expression: item,
       include_food_attributes: true,
+      format: 'json'
       // max_results: 1
     },
     json: true
@@ -78,6 +81,41 @@ function sendRequest(req, res, token, item) {
   });
 }
 
+// Query by searching for food id
+function sendRequest_id(req, res, token, item) {
+  const options = {
+    method: 'POST',
+    url: 'https://platform.fatsecret.com/rest/server.api',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    qs: {
+      method: 'food.get.v4',
+      food_id: item,
+      include_food_attributes: true,
+      format: 'json'
+      // max_results: 1
+    }
+  };
+
+  request(options, function (error, response, body) {
+    if (error) {
+      console.error('Error obtaining information: ', error);
+      res.status(500).send('Error obtaining information');
+    } else {
+      if (response.statusCode === 200) {
+        console.log('Data obtained!');
+        res.status(response.statusCode).json(body);
+      } else {
+        console.error('Failed to fetch data: ', body);
+        res.status(response.statusCode).send('Failed to fetch data');
+      }
+    }
+  });
+};
+
+// Post request for search by food name
 app.post('/api/proxy', (req, res) => {
   const item = req.body.item;
   if (!item) {
@@ -94,6 +132,27 @@ app.post('/api/proxy', (req, res) => {
     });
   } else {
     sendRequest(req, res, accessToken, item);
+  }
+});
+
+// Post request for search by food id
+app.post('/api/querymacros', (req, res) => {
+  const food_id = req.body.item;
+  console.log(food_id)
+  if (!food_id) {
+    return res.status(400).send('Food ID is required');
+  }
+
+  if (!accessToken || Date.now() >= tokenExpiresAt) {
+    getAccessToken((error, token) => {
+      if (error) {
+        return res.status(500).send('Error getting access token');
+      } else {
+        sendRequest_id(req, res, token, food_id);
+      }
+    });
+  } else {
+    sendRequest_id(req, res, accessToken, food_id);
   }
 });
 
