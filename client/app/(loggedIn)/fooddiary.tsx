@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, StatusBar, TouchableOpacity, Alert, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, StatusBar, TouchableOpacity, Alert, Dimensions, ActivityIndicator, Image } from 'react-native';
 import { router } from 'expo-router';
 import { supabase } from '../../lib/supabase';
 import dayjs from 'dayjs';
@@ -10,6 +10,7 @@ import { FontAwesome5, MaterialCommunityIcons, AntDesign } from '@expo/vector-ic
 import Constants from 'expo-constants';
 import SharedHeader from '../components/sharedheader';
 import { DateTime } from 'luxon';
+import PieChart from 'react-native-pie-chart';
 
 // Add timezone and utc plugin for dayjs for Singapore timezone
 dayjs.extend(utc);
@@ -57,8 +58,19 @@ const UpdateDiary = () => {
   const [breakfast, setBreakfast] = useState(false);
   const [lunch, setLunch] = useState(false);
   const [dinner, setDinner] = useState(false);
-  const [caloricGoal, setCaloricGoal] = useState(0);
-  const [consumedcalories, setConsumed] = useState(0);
+  const [caloricGoal, setCaloricGoal] = useState<number>(1);
+  const [consumedcalories, setConsumed] = useState<number>(1);
+  const [renderScreen, setRenderScreen] = useState(false);
+
+  // App Icon
+  const appIcon = require('../../assets/images/icon.png');
+
+  // Display our screen after last component has rendered
+  useEffect(() => {
+    if (caloricGoal !== 1) {
+      setRenderScreen(true);
+    }
+  }, [caloricGoal, consumedcalories]);
 
   // this function retrieves meal times from db, and also checks whether the meals of the day have been logged
   const getData = async () => {
@@ -357,25 +369,41 @@ const UpdateDiary = () => {
 
   // pie chart size to be 180
 
+  useEffect(() => {
+    Calorie_tracker();
+  }, [caloricGoal, consumedcalories]);
+
   const Calorie_tracker = () => {
+
+    const data = [
+      { name: 'Consumed', amount: consumedcalories, color: '#4caf50' },
+      { name: 'Remaining', amount: caloricGoal - consumedcalories, color: '#ff5722' }
+    ];
 
     return (
       <View style={styles.roundedbackground_piechart}>
         <Text style={{ textAlign: 'center' }}>Calorie Tracker</Text>
         <View style={{ flexDirection: 'row', flex: 1, alignItems: 'center', width: windWidth - 100 }}>
-          <View style={{ flex: 1, flexDirection: 'column', alignItems: 'center', justifyContent: 'space-evenly', width: 200, height: 180 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', width: 90 }}>
-              <MaterialCommunityIcons name='silverware-fork-knife' size={14} color='black' />
-              <Text style={{ fontSize: 14, textAlign: 'center' }}>Consumed:</Text>
-            </View>
-            <View style={{ flexDirection: 'column' }}>
+          <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly', width: 200, height: 180 }}>
+            <PieChart
+              widthAndHeight={150}
+              series={data.map(item => item.amount)}
+              sliceColor={data.map(item => item.color)}
+              coverRadius={0.45}
+              coverFill={'#fff'}
+            />
+            <View style={{ flexDirection: 'column', alignItems: 'center' }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', width: 90 }}>
+                <MaterialCommunityIcons name='silverware-fork-knife' size={14} color='black' />
+                <Text style={{ fontSize: 14, textAlign: 'center' }}>Consumed:</Text>
+              </View>
               <Text>{consumedcalories}</Text>
             </View>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', width: 60 }}>
-              <FontAwesome5 name='flag-checkered' size={14} color='black' />
-              <Text style={{ fontSize: 14, textAlign: 'center' }}>Goal:</Text>
-            </View>
-            <View style={{ flexDirection: 'column' }}>
+            <View style={{ flexDirection: 'column', alignItems: 'center' }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', width: 60 }}>
+                <FontAwesome5 name='flag-checkered' size={14} color='black' />
+                <Text style={{ fontSize: 14, textAlign: 'center' }}>Goal:</Text>
+              </View>
               <Text>{caloricGoal}</Text>
             </View>
           </View>
@@ -387,10 +415,15 @@ const UpdateDiary = () => {
   return (
     <View style={styles.container}>
       <SharedHeader />
-      <View style={{ flex: 1, flexDirection: 'column', alignItems: 'center', justifyContent: 'space-evenly' }}>
-        <Button_checklist />
-        <Calorie_tracker />
-      </View>
+      {renderScreen ?
+        <View style={{ flex: 1, flexDirection: 'column', alignItems: 'center', justifyContent: 'space-evenly' }}>
+          <Button_checklist />
+          <Calorie_tracker />
+        </View> :
+        <View style={styles.loadingcontainer}>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
+      }
     </View>
   )
 };
@@ -400,6 +433,12 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
     backgroundColor: '#E4FBFF'
+  },
+  loadingcontainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)'
   },
   header_navigate: {
     flexDirection: 'row',
