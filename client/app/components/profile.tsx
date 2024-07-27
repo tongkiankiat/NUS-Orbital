@@ -23,35 +23,34 @@ const Profile = () => {
     gender: ''
   });
 
-  const dropdown_data_goals = [
-    { key: 'Lose Weight', value: 'Lose Weight' },
-    { key: 'Gain Weight', value: 'Gain Weight' },
-    { key: 'Maintain Weight', value: 'Maintain Weight' }
-  ];
-
-  const dropdown_data_active = [
-    { key: 1, value: 'Sedentary (Little to no exercise)' },
-    { key: 2, value: 'Lightly Active (Exercise/Sports 1-3 days per week)' },
-    { key: 3, value: 'Moderately Active (Exercise/Sports 3-5 days per week or more)' },
-  ];
-
-  const dropdown_data_gender = [
-    { key: 'Male', value: 'Male' },
-    { key: 'Female', value: 'Female' }
-  ];
-
-  const allergy_data = [
-    { key: 'Egg', value: 'Egg' },
-    { key: 'Fish', value: 'Fish' },
-    { key: 'Gluten', value: 'Gluten' },
-    { key: 'Lactose', value: 'Lactose' },
-    { key: 'Milk', value: 'Milk' },
-    { key: 'Nuts', value: 'Nuts' },
-    { key: 'Peanuts', value: 'Peanuts' },
-    { key: 'Sesame', value: 'Sesame' },
-    { key: 'Shellfish', value: 'Shellfish' },
-    { key: 'Soy', value: 'Soy' }
-  ];
+  const dropdown_data = {
+    'goals': [
+      { key: 'Lose Weight', value: 'Lose Weight' },
+      { key: 'Gain Weight', value: 'Gain Weight' },
+      { key: 'Maintain Weight', value: 'Maintain Weight' }
+    ],
+    'active': [
+      { key: 1, value: 'Sedentary (Little to no exercise)' },
+      { key: 2, value: 'Lightly Active (Exercise/Sports 1-3 days per week)' },
+      { key: 3, value: 'Moderately Active (Exercise/Sports 3-5 days per week or more)' }
+    ],
+    'gender': [
+      { key: 'Male', value: 'Male' },
+      { key: 'Female', value: 'Female' }
+    ],
+    'allergies': [
+      { key: 'Egg', value: 'Egg' },
+      { key: 'Fish', value: 'Fish' },
+      { key: 'Gluten', value: 'Gluten' },
+      { key: 'Lactose', value: 'Lactose' },
+      { key: 'Milk', value: 'Milk' },
+      { key: 'Nuts', value: 'Nuts' },
+      { key: 'Peanuts', value: 'Peanuts' },
+      { key: 'Sesame', value: 'Sesame' },
+      { key: 'Shellfish', value: 'Shellfish' },
+      { key: 'Soy', value: 'Soy' }
+    ]
+  };
 
   useEffect(() => {
     fetchUserInfo();
@@ -69,25 +68,20 @@ const Profile = () => {
       const { data, error } = await supabase.from('users').select('*').eq('id', uuid).single();
       if (error) {
         throw error;
-      }
-      let cleanedAllergies = data?.allergies || '';
-      console.log(typeof (cleanedAllergies))
-      cleanedAllergies = cleanedAllergies.replace(/[\[\]']+/g, ''); // Remove square brackets and quotes
-      const userAllergies = cleanedAllergies.replace(/"/g, '').split(',');
-      setUserInfo({
-        ...data,
-        allergies: userAllergies
-      });
-      console.log(userAllergies);
-      console.log(typeof (userAllergies))
-    } catch (error) {
+      };
+      setUserInfo(data);
+    } catch (error: any) {
       console.error('Error fetching user info: ', error.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleInputChange = (field, value) => {
+  const display_allergies = () => {
+    return userInfo.allergies.toString();
+  }
+
+  const handleInputChange = (field: any, value: any) => {
     setUserInfo({ ...userInfo, [field]: value });
   };
 
@@ -106,8 +100,8 @@ const Profile = () => {
       }
       console.log(userInfo.allergies);
       Alert.alert('Success', 'Your information has been updated.');
-      router.back(); // Redirect to home page after update
-    } catch (error) {
+      router.back();
+    } catch (error: any) {
       console.error('Error updating user info: ', error.message);
       Alert.alert('Error', 'There was an error updating your information.');
     } finally {
@@ -155,37 +149,35 @@ const Profile = () => {
             editable={editinfo}
           />
         </View>
-        <Text style={styles.label}>Allergies</Text>
+        <Text style={styles.label}>Allergies:</Text>
         <MultipleSelectList
           setSelected={(value: string[]) => handleInputChange('allergies', value)}
-          data={allergy_data}
+          data={dropdown_data.allergies}
           save="value"
-          defaultOption={userInfo.allergies}
           search={false}
-          editable={editinfo}
           label='Allergies'
-          placeholder='Allergies'
         />
-        <Text style={styles.label}>Goals</Text>
+        <Text style={styles.label}>Current Allergies: {display_allergies()}</Text>
+        <Text style={styles.label}>Goals:</Text>
         <SelectList
           setSelected={(value: string) => handleInputChange('goals', value)}
-          data={dropdown_data_goals}
+          data={dropdown_data.goals}
           save="value"
           defaultOption={{ key: userInfo.goals, value: userInfo.goals }}
           search={false}
         />
-        <Text style={styles.label}>Active Level</Text>
+        <Text style={styles.label}>Active Level:</Text>
         <SelectList
-          setSelected={(value: string) => handleInputChange('active_level', value)}
-          data={dropdown_data_active}
+          setSelected={(value: string) => handleInputChange('active_level', dropdown_data.active.find(item => item.value === value)!.key)}
+          data={dropdown_data.active}
           save="value"
-          defaultOption={{ key: dropdown_data_active.find(item => item.key === Number(userInfo.active_level))?.value, value: dropdown_data_active.find(item => item.key === Number(userInfo.active_level))?.value }}
+          defaultOption={{ key: dropdown_data.active.find(item => item.key === Number(userInfo.active_level))?.value, value: dropdown_data.active.find(item => item.key === Number(userInfo.active_level))?.value }}
           search={false}
         />
         <Text style={styles.label}>Gender</Text>
         <SelectList
           setSelected={(value: string) => handleInputChange('gender', value)}
-          data={dropdown_data_gender}
+          data={dropdown_data.gender}
           save="value"
           defaultOption={{ key: userInfo.gender, value: userInfo.gender }}
           search={false}
