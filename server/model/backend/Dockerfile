@@ -2,10 +2,10 @@ FROM python:3.10.8
 
 RUN mkdir -p /app/backend /app/Data
 
-COPY ../Data /app/Data
-COPY requirements.txt /app/backend/requirements.txt
+COPY /Data /app/Data
+COPY /backend/requirements.txt /app/backend/requirements.txt
 
-COPY . /app/backend
+COPY /backend /app/backend
 
 WORKDIR /app/backend
 
