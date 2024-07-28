@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "navigate_NUtriSync",
+    "name": "NUtriSync",
     "slug": "nutrisync",
     "scheme": "NUtriSync",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "../assets/images/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
@@ -27,7 +27,8 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-secure-store"
     ],
     "extra": {
       "router": {
