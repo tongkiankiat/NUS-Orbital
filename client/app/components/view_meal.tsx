@@ -1,10 +1,11 @@
-import { View, Text, StyleSheet, TouchableOpacity, StatusBar, Alert, FlatList } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, StatusBar, Alert, FlatList, ActivityIndicator } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { Feather, Fontisto } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { supabase } from '../../lib/supabase';
 import { DateTime } from 'luxon';
 import DateTimePicker from 'react-native-modal-datetime-picker';
+import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 
 interface Ingredient {
   food_id: number;
@@ -22,75 +23,98 @@ interface Ingredient {
 
 const ViewMeal = () => {
   // Define useState variables
-  // const [date, setDate] = useState(DateTime.now().setZone('Asia/Singapore').toISODate());
   const [date, setDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState();
   const [showModal, setModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [meals, setMeals] = useState<{ meal_id: number, meal_time: string }[]>([]);
-  const [queriedmeals, setQueriedMeals] = useState<Ingredient[]>([]);
-  const [filteredmeals, setFilteredMeals] = useState<Ingredient[]>([]);
+  const [renderScreen, setRenderScreen] = useState(false);
 
- // Fetch meals data from supabase
- const getMeals = async () => {
-  const user = await supabase.auth.getUser();
-  if (!user) {
-    console.error('No such user!');
-    return;
-  }
-  const uuid = user.data.user?.id;
-  setLoading(true);
-  try {
-    const { data: mealsData, error } = await supabase.from('meals').select('*').eq('id', uuid).eq('date', date);
-    if (error) {
-      Alert.alert('Error occured fetching meals: ', error.message);
-    } else if (mealsData) {
-      if (mealsData.length === 0) {
-        console.log(`No recorded meals found on ${date}!`);
-        setMeals([]);
-      } else {
-        setMeals(mealsData);
-      }
+  useEffect(() => {
+    setRenderScreen(true);
+  }, [meals, date]);
+
+  // Fetch meals data from supabase
+  const getMeals = async () => {
+    const user = await supabase.auth.getUser();
+    if (!user) {
+      console.error('No such user!');
+      return;
     }
-  } catch (error) {
-    console.error('Error occured fetching meals: ', error);
-  } finally {
-    setLoading(false);
-  }
-};
+    const uuid = user.data.user?.id;
+    setLoading(true);
+    try {
+      const { data: mealsData, error } = await supabase.from('meals').select('*').eq('id', uuid).eq('date', date);
+      if (error) {
+        Alert.alert('Error occured fetching meals: ', error.message);
+      } else if (mealsData) {
+        if (mealsData.length === 0) {
+          console.log(`No recorded meals found on ${date}!`);
+          setMeals([]);
+        } else {
+          console.log(mealsData)
+          setMeals(mealsData);
+        }
+      }
+    } catch (error) {
+      console.error('Error occured fetching meals: ', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-useEffect(() => {
-  getMeals();
-}, [date])
+  useEffect(() => {
+    getMeals();
+  }, [date])
 
   // Date Picker Icon; select the date to view meals eaten previously 
+  // const showDatePicker = () => {
+  //   setModal(true);
+  // };
+
+  // const hideDatePicker = () => {
+  //   setModal(false);
+  // };
+
+  // const handleConfirm = (date: any) => {
+  //   setDate(date);
+  //   hideDatePicker();
+  // };
+
+  const onChange = (event, selectedDate) => {
+    console.log(selectedDate);
+    const currentDate = selectedDate;
+    setDate(currentDate);
+  };
+
+  const showMode = (currentMode) => {
+    DateTimePickerAndroid.open({
+      value: date,
+      onChange,
+      mode: currentMode,
+      timeZoneName: 'Asia/Singapore'
+    });
+  };
+
   const showDatePicker = () => {
-    setModal(true);
+    showMode('date');
   };
 
-  const hideDatePicker = () => {
-    setModal(false);
-  };
-
-  const handleConfirm = (date: Date) => {
-    setDate(date)
-    hideDatePicker();
-  };
-
-  const renderMealItem = ({ item }: { item: Ingredient }) => {
+  const renderMealItem = ({ item }) => {
     return (
       <View style={styles.mealItem}>
         <Text style={styles.mealName}>{item.food_name}</Text>
-        <Text>{item.food_description}</Text>
-        <Text>Calories: {item.calories}</Text>
-        <Text>Protein: {item.protein}g</Text>
-        <Text>Carbs: {item.carbs}g</Text>
-        <Text>Fats: {item.fats}g</Text>
+        <Text>{item.meal.food_description}</Text>
+        <Text>Calories: {item.meal.calories}</Text>
+        <Text>Protein: {item.meal.protein}g</Text>
+        <Text>Carbs: {item.meal.carbs}g</Text>
+        <Text>Fats: {item.meal.fats}g</Text>
       </View>
     );
   };
 
   const filterMealsByTime = (mealTime: string) => {
-    return queriedmeals.filter(meal => meal.meal_time === mealTime);
+    return meals.filter(meal => meal.meal_time === mealTime);
   };
 
   return (
@@ -107,65 +131,63 @@ useEffect(() => {
           <TouchableOpacity onPress={showDatePicker}>
             <Fontisto name="date" size={24} color="black" style={{ paddingRight: 5 }} />
           </TouchableOpacity>
-          <DateTimePicker
-            isVisible={showModal}
-            date={date}
-            mode="date"
-            onConfirm={handleConfirm}
-            onCancel={hideDatePicker}
-          />
         </>
       </View>
-      <View style={{ flex: 1 }}>
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Breakfast</Text>
-          {filterMealsByTime('Breakfast').length === 0 ? (
-            <Text>No recorded meals found on {DateTime.fromJSDate(date).toFormat('yyyy-MM-dd')}!</Text>
-          ) : (
-            <FlatList
-              data={filterMealsByTime('Breakfast')}
-              renderItem={renderMealItem}
-              keyExtractor={(item, index) => index.toString()}
-            />
-          )}
+      {renderScreen ?
+        <View style={{ flex: 1 }}>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Breakfast</Text>
+            {filterMealsByTime('Breakfast').length === 0 ? (
+              <Text>No recorded meals found on {DateTime.fromJSDate(date).toFormat('yyyy-MM-dd')}!</Text>
+            ) : (
+              <FlatList
+                data={filterMealsByTime('Breakfast')}
+                renderItem={renderMealItem}
+                keyExtractor={(item, index) => index.toString()}
+              />
+            )}
+          </View>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Lunch</Text>
+            {filterMealsByTime('Lunch').length === 0 ? (
+              <Text>No recorded meals found on {DateTime.fromJSDate(date).toFormat('yyyy-MM-dd')}!</Text>
+            ) : (
+              <FlatList
+                data={filterMealsByTime('Lunch')}
+                renderItem={renderMealItem}
+                keyExtractor={(item, index) => index.toString()}
+              />
+            )}
+          </View>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Dinner</Text>
+            {filterMealsByTime('Dinner').length === 0 ? (
+              <Text>No recorded meals found on {DateTime.fromJSDate(date).toFormat('yyyy-MM-dd')}!</Text>
+            ) : (
+              <FlatList
+                data={filterMealsByTime('Dinner')}
+                renderItem={renderMealItem}
+                keyExtractor={(item, index) => index.toString()}
+              />
+            )}
+          </View>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Snacks</Text>
+            {filterMealsByTime('Snacks').length === 0 ? (
+              <Text>No recorded meals found on {DateTime.fromJSDate(date).toFormat('yyyy-MM-dd')}!</Text>
+            ) : (
+              <FlatList
+                data={filterMealsByTime('Snacks')}
+                renderItem={renderMealItem}
+                keyExtractor={(item, index) => index.toString()}
+              />
+            )}
+          </View>
         </View>
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Lunch</Text>
-          {filterMealsByTime('Lunch').length === 0 ? (
-            <Text>No recorded meals found on {DateTime.fromJSDate(date).toFormat('yyyy-MM-dd')}!</Text>
-          ) : (
-            <FlatList
-              data={filterMealsByTime('Lunch')}
-              renderItem={renderMealItem}
-              keyExtractor={(item, index) => index.toString()}
-            />
-          )}
-        </View>
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Dinner</Text>
-          {filterMealsByTime('Dinner').length === 0 ? (
-            <Text>No recorded meals found on {DateTime.fromJSDate(date).toFormat('yyyy-MM-dd')}!</Text>
-          ) : (
-            <FlatList
-              data={filterMealsByTime('Dinner')}
-              renderItem={renderMealItem}
-              keyExtractor={(item, index) => index.toString()}
-            />
-          )}
-        </View>
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Snacks</Text>
-          {filterMealsByTime('Snacks').length === 0 ? (
-            <Text>No recorded meals found on {DateTime.fromJSDate(date).toFormat('yyyy-MM-dd')}!</Text>
-          ) : (
-            <FlatList
-              data={filterMealsByTime('Snacks')}
-              renderItem={renderMealItem}
-              keyExtractor={(item, index) => index.toString()}
-            />
-          )}
-        </View>
-      </View>
+        :
+        <View style={styles.loadingcontainer}>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>}
     </View>
   );
 };
@@ -175,6 +197,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#E4FBFF',
     paddingTop: StatusBar.currentHeight
+  },
+  loadingcontainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)'
   },
   header: {
     flexDirection: 'row',
