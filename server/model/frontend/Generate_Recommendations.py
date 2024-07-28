@@ -97,7 +97,7 @@ def fatsecret_filter():
     data = request.get_json()
     print('Data: ', data, flush=True)
     try: 
-      response = requests.post('http://192.168.1.141:3000/api/proxy', json=data)
+      response = requests.post('http://192.168.100.151:3000/api/proxy', json=data)
       if response.status_code == 200:
           data = response.json()
           return jsonify({'safe': True})
@@ -111,7 +111,7 @@ def filter_allergies(allergies, recommended_recipes):
     for recipe in recommended_recipes:
         if not any(allergy in recipe['RecipeIngredientParts'] for allergy in allergies):
             print('Food Name: ', recipe['Name'], flush=True)
-            response = requests.post('http://192.168.1.141:5000/filter_fatsecret', json={'item': recipe['Name']})
+            response = requests.post('http://192.168.100.151:5000/filter_fatsecret', json={'item': recipe['Name']})
             if response.json().get('safe'):
               filtered_recipes.append(recipe)
             elif response == False:

@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, Modal, TouchableOpacity, TextInput, Alert } from 'react-native';
 import axios from 'axios';
-import { XMLParser } from 'fast-xml-parser';
-import { router, useGlobalSearchParams } from 'expo-router';
+import { router } from 'expo-router';
 import { supabase } from '../../../lib/supabase';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { DateTime } from 'luxon';
@@ -11,6 +10,7 @@ interface Ingredient {
   food_id: string;
   food_name: string;
   food_description: string;
+  food_type: string;
   calories: number;
   fats: number;
   carbs: number;
@@ -20,7 +20,7 @@ interface Ingredient {
   allergens: string[]
 }
 
-const Meals = () => {
+const Meals = ({meal_time}) => {
   // Set useState variables
   const [search, setSearch] = useState<string | null>('');
   const [loading, setLoading] = useState(false);
@@ -29,9 +29,6 @@ const Meals = () => {
   const [selectedRecipe, setSelectedRecipe] = useState<Ingredient | null>(null);
   const [noResults, setNoResults] = useState<Boolean>(false);
   const [allergies, setAllergies] = useState<string[]>([]);
-
-  // Retrieve meal time from fooddiary page
-  const { meal_time } = useGlobalSearchParams();
 
   const getAllergies = async () => {
     const user = await supabase.auth.getUser();
@@ -45,10 +42,7 @@ const Meals = () => {
         console.log('Error occured while fetching allergies: ', getError.message);
         setAllergies([]);
       } else if (data) {
-        let cleanedAllergies = data?.allergies || '';
-        cleanedAllergies = cleanedAllergies.replace(/[\[\]']+/g, ''); // Remove square brackets and quotes
-        const userAllergies = cleanedAllergies.replace(/"/g, '').split(',');
-        setAllergies(userAllergies);
+        setAllergies(data.allergies);
       }
     } catch (error) {
       console.error('Error occured: ', error);
@@ -90,7 +84,7 @@ const Meals = () => {
     }
     const uuid = user.data.user?.id;
     try {
-      const { error: sendError } = await supabase.from('meals').insert({ 'id': uuid, meal: selectedRecipe, meal_time: meal_time, date: DateTime.now().setZone('Asia/Singapore').toISODate()});
+      const { error: sendError } = await supabase.from('meals').insert({ 'id': uuid, food_name: selectedRecipe?.food_name, meal: selectedRecipe, meal_time: meal_time, date: DateTime.now().setZone('Asia/Singapore').toISODate()});
       if (!sendError) {
         Alert.alert('Success!', `Meal Logged for ${meal_time}`);
       } else {
@@ -111,20 +105,15 @@ const Meals = () => {
       // const response = await axios.post('https://nus-orbital.onrender.com/api/proxy', {
       //   item: searchTerm,
       // });
-      const ingredientResponse = await axios.post('http://192.168.1.141:3000/api/proxy', { item: search }); {/* For the IP address here, use your network's IP, use 'ipconfig' in powershell/terminal to check. Afterwards, whitelist your public IP address (https://www.whatismyip.com/) in FatSecretAPI website*/ }
-      const parser = new XMLParser({
-        ignoreAttributes: false,
-        attributeNamePrefix: '',
-        parseAttributeValue: true,
-      });
-      const xmlData = ingredientResponse.data;
-      const jsonObj = parser.parse(xmlData);
-      const ingredientsData = jsonObj.foods_search.results.food;
+      const ingredientResponse = await axios.post('http://192.168.1.142:3000/api/proxy', { item: search }); {/* For the IP address here, use your network's IP, use 'ipconfig' in powershell/terminal to check. Afterwards, whitelist your public IP address (https://www.whatismyip.com/) in FatSecretAPI website*/ }
+      
+      const jsonData = ingredientResponse.data;
+      const ingredientsData = jsonData.foods_search.results.food;
       const parsedingredients = Array.isArray(ingredientsData) ? ingredientsData : [ingredientsData];
 
       const ingredientItems: Ingredient[] = parsedingredients.map((ingredient: any) => {
-        const servings = Array.isArray(ingredient.servings.serving) ? ingredient.servings.serving : [ingredient.servings.serving];
-        const mainServing = servings[0];
+        const servings = Array.isArray(ingredient.servings) ? ingredient.servings.serving : [ingredient.servings.serving];
+        const mainServing = servings[0][0];
 
         const calories = parseFloat(mainServing.calories);
         const fats = parseFloat(mainServing.fat);
@@ -139,6 +128,7 @@ const Meals = () => {
           food_id: ingredient.food_id,
           food_name: ingredient.food_name,
           food_description: mainServing.serving_description,
+          food_type: ingredient.food_type,
           weight: parseFloat(mainServing.metric_serving_amount),
           calories,
           fats,
@@ -148,12 +138,17 @@ const Meals = () => {
         };
       });
 
+      // Filter out branded items from API search results, as they contain no allergy arrays
+      const filterBranded = ingredientItems.filter((item) => {
+        return !(item.food_type === "Brand")
+      })
+
       // Filter out the items that the user is allergic to
-      const filteredIngredients = ingredientItems.filter((item) => {
+      const filteredIngredients = filterBranded.filter((item) => {
         const allergenInName = allergies.some(allergen => item.food_name.toLowerCase().includes(allergen.toLowerCase()));
         return !item.allergens.some(allergen => allergies.includes(allergen)) && !allergenInName;
       });
-
+      
       setRecipeData(filteredIngredients);
       setNoResults(filteredIngredients.length === 0);
     } catch (error) {

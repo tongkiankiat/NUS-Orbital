@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, StyleSheet, StatusBar, TouchableOpacity, TextInput } from 'react-native'
+import { View, Text, StyleSheet, StatusBar, TouchableOpacity } from 'react-native'
 import { Feather } from '@expo/vector-icons';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import Meals from './(tabs)/meals';
-import NUS from './(tabs)/nus';
 import { supabase } from '../../lib/supabase';
-import DietPlan from './dietplan';
+import DietPlan from './(tabs)/dietplan';
 import { router, useGlobalSearchParams } from 'expo-router';
 
 interface Food {
@@ -21,7 +20,7 @@ interface Food {
 const Tab = createMaterialTopTabNavigator();
 
 const returnToHome = () => {
-  router.push('../(loggedIn)/fooddiary');
+  router.back();
 };
 
 const Calories = () => {
@@ -38,12 +37,14 @@ const Calories = () => {
       console.error('No such user!');
     };
     const uuid = user.data.user?.id;
+    setLoading(true);
     try {
       const { data, error } = await supabase.from('users').select('allergies').eq('id', uuid).single();
-      console.log(data?.allergies || 'No allergies');
       setAllergies(data?.allergies || []);
     } catch (error) {
       console.error('Error occured: ', error);
+    } finally {
+      setLoading(false);
     };
   };
 
@@ -66,8 +67,12 @@ const Calories = () => {
           tabBarStyle: { backgroundColor: "#E4FBFF" },
         }}
       >
-        <Tab.Screen name="Meals" component={Meals} />
-        <Tab.Screen name="NUS" component={NUS} />
+        <Tab.Screen name="Meals">
+          {() => <Meals meal_time={meal_time} />}
+        </Tab.Screen>
+        <Tab.Screen name="Diet Plan">
+          {() => <DietPlan meal_time={meal_time} />}
+        </Tab.Screen>
       </Tab.Navigator>
       {loading && <Text>Loading...</Text>}
     </View>

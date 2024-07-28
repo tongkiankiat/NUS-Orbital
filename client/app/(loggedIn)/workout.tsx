@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
 import SharedHeader from '../components/sharedheader';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';

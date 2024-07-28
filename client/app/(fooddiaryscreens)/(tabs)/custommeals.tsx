@@ -1,8 +1,7 @@
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, FlatList, Modal, StatusBar, KeyboardAvoidingView, Alert } from 'react-native';
 import React, { useState } from 'react';
 import Icon from 'react-native-vector-icons/Ionicons';
-import axios from 'axios';
-import { XMLParser } from 'fast-xml-parser';
+import axios, { all } from 'axios';
 import { router, useLocalSearchParams } from 'expo-router';
 import { supabase } from '../../../lib/supabase';
 
@@ -12,9 +11,10 @@ interface CustomMeal {
 }
 
 interface Ingredient {
-  food_id: string;
+  food_id: number;
   food_name: string;
   food_description: string;
+  food_type: string;
   calories: number;
   fats: number;
   carbs: number;
@@ -50,8 +50,9 @@ const CustomMeals = () => {
   const [customMeal, setMeal] = useState<CustomMeal>();
 
   // Allergies array passed from Meals
-  const { allergies } = useLocalSearchParams();
-
+  const allergies_params = useLocalSearchParams();
+  const allergies = Object.values(allergies_params)[0]?.split(',');
+  
   const closeModal = () => {
     setModalVisible(false);
     setSearchResults([]);
@@ -181,20 +182,15 @@ const CustomMeals = () => {
       // const response = await axios.post('https://nus-orbital.onrender.com/api/proxy', {
       //   item: searchTerm,
       // });
-      const ingredientResponse = await axios.post('http://192.168.1.141:3000/api/proxy', { item: search });
-      const parser = new XMLParser({
-        ignoreAttributes: false,
-        attributeNamePrefix: '',
-        parseAttributeValue: true,
-      });
-      const xmlData = ingredientResponse.data;
-      const jsonObj = parser.parse(xmlData);
-      const ingredientsData = jsonObj.foods_search.results.food;
+      const ingredientResponse = await axios.post('http://192.168.1.142:3000/api/proxy', { item: search });
+      const jsonData = ingredientResponse.data;
+      const ingredientsData = jsonData.foods_search.results.food;
       const parsedingredients = Array.isArray(ingredientsData) ? ingredientsData : [ingredientsData];
 
       const ingredientItems: Ingredient[] = parsedingredients.map((ingredient: any) => {
-        const servings = Array.isArray(ingredient.servings.serving) ? ingredient.servings.serving : [ingredient.servings.serving];
-        const mainServing = servings[0];
+        console.log(ingredient)
+        const servings = Array.isArray(ingredient.servings) ? ingredient.servings.serving : [ingredient.servings.serving];
+        const mainServing = servings[0][0];
 
         const calories = parseFloat(mainServing.calories);
         const fats = parseFloat(mainServing.fat);
@@ -209,6 +205,7 @@ const CustomMeals = () => {
           food_id: ingredient.food_id,
           food_name: ingredient.food_name,
           food_description: mainServing.serving_description,
+          food_type: ingredient.food_type,
           weight: parseFloat(mainServing.metric_serving_amount),
           calories,
           fats,
@@ -218,10 +215,15 @@ const CustomMeals = () => {
         };
       });
 
+      // Filter out branded items from API search results, as they contain no allergy arrays
+      const filterBranded = ingredientItems.filter((item) => {
+        return !(item.food_type === "Brand")
+      })
+
       // Filter out the items that the user is allergic to
-      const filteredIngredients = ingredientItems.filter((item) => {
-        const allergies_arr = typeof (allergies) === 'string' ? allergies.split(',') : allergies;
-        const allergenInName = allergies_arr?.some(allergen => item.food_name.toLowerCase().includes(allergen.toLowerCase()));
+      const filteredIngredients = filterBranded.filter((item) => {
+        console.log(allergies)
+        const allergenInName = allergies?.some(allergen => item.food_name.toLowerCase().includes(allergen.toLowerCase()));
         return !item.allergens.some(allergen => allergies?.includes(allergen)) && !allergenInName;
       });
 

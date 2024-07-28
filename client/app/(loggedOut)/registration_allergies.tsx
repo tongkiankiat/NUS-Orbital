@@ -10,7 +10,7 @@ const Register_allergies = () => {
   const { height, weight, age, gender, goals, active_level } = useLocalSearchParams();
 
   // Define useState variables
-  const [selected, setSelected] = useState([]);
+  const [selected, setSelected] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
   const data = [
@@ -41,7 +41,7 @@ const Register_allergies = () => {
       const { error: updateError } = await supabase.from('users').update({
         allergies: selected
       }).eq('id', uuid);
-
+      console.log(typeof(selected), selected);
       if (updateError) {
         Alert.alert('Error occured: ', updateError.message);
         return;
@@ -73,7 +73,7 @@ const Register_allergies = () => {
         <View style={styles.multipleselectlist}>
           <Text style={{ alignSelf: 'center', paddingBottom: 10 }}>Do you have any allergies?</Text>
           <MultipleSelectList
-            setSelected={(value: any) => setSelected(value)}
+            setSelected={(value: string[]) => setSelected(value)}
             data={data}
             save='value'
             label='Allergies'

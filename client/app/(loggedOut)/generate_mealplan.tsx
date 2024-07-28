@@ -54,7 +54,7 @@ const Generate_MealPlan = () => {
         age: age,
         gender: gender,
         activity: active_level,
-        alleriges: allergies?.toString(),
+        allergies: allergies?.toString(),
         weight_change: goals,
         breakfast: 0.30,
         lunch: 0.40,
@@ -62,7 +62,7 @@ const Generate_MealPlan = () => {
         snacks: 0.05
       };
 
-      const response = await axios.get('http://192.168.1.141:5000/generate_recommendations', { params });
+      const response = await axios.get('http://192.168.68.69:5000/generate_recommendations', { params });
       setRecommendations(response.data);
     } catch (error) {
       console.error(error);
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#E4FBFF',
     padding: 5,
     marginTop: 10,
     borderRadius: 5,

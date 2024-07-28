@@ -62,9 +62,6 @@ const UpdateDiary = () => {
   const [consumedcalories, setConsumed] = useState<number>(1);
   const [renderScreen, setRenderScreen] = useState(false);
 
-  // App Icon
-  const appIcon = require('../../assets/images/icon.png');
-
   // Display our screen after last component has rendered
   useEffect(() => {
     if (caloricGoal !== 1) {
@@ -324,7 +321,7 @@ const UpdateDiary = () => {
         <View style={styles.roundedbackground_checklist}>
           <View style={{ flexDirection: 'column', justifyContent: 'space-evenly', flex: 1, width: 130 }}>
             <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'space-between', alignItems: 'center', paddingRight: 5 }}>
-              <TouchableOpacity onPress={() => router.push('../components/view_meal')}>
+              <TouchableOpacity onPress={() => router.push({ pathname: '../(fooddiaryscreens)/updatediary', params: { meal_time: 'Breakfast' } })}>
                 <Text>Breakfast</Text>
               </TouchableOpacity>
               {breakfast === true ? (
@@ -334,7 +331,7 @@ const UpdateDiary = () => {
               )}
             </View>
             <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'space-between', alignItems: 'center', paddingRight: 5 }}>
-              <TouchableOpacity onPress={() => router.push('../components/view_meal')}>
+              <TouchableOpacity onPress={() => router.push({ pathname: '../(fooddiaryscreens)/updatediary', params: { meal_time: 'Lunch' } })}>
                 <Text>Lunch</Text>
               </TouchableOpacity>
               {lunch === true ? (
@@ -344,7 +341,7 @@ const UpdateDiary = () => {
               )}
             </View>
             <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'space-between', alignItems: 'center', paddingRight: 5 }}>
-              <TouchableOpacity onPress={() => router.push('../components/view_meal')}>
+              <TouchableOpacity onPress={() => router.push({ pathname: '../(fooddiaryscreens)/updatediary', params: { meal_time: 'Dinner' } })}>
                 <Text>Dinner</Text>
               </TouchableOpacity>
               {dinner === true ? (
@@ -354,11 +351,8 @@ const UpdateDiary = () => {
               )}
             </View>
             <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'space-between', alignItems: 'center', paddingRight: 5 }}>
-              <TouchableOpacity onPress={() => router.push('../components/view_meal')}>
-                <Text>Snacks</Text>
-              </TouchableOpacity>
               <TouchableOpacity onPress={() => router.push({ pathname: '../(fooddiaryscreens)/updatediary', params: { meal_time: 'Snacks' } })}>
-                <AntDesign name="pluscircle" size={24} color="black" />
+                <Text>Snacks</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -419,6 +413,9 @@ const UpdateDiary = () => {
         <View style={{ flex: 1, flexDirection: 'column', alignItems: 'center', justifyContent: 'space-evenly' }}>
           <Button_checklist />
           <Calorie_tracker />
+          <TouchableOpacity style={styles.button_logs} onPress={() => router.push('../components/view_meal')}>
+            <Text style={styles.buttonText}>Check Meal Logs</Text>
+          </TouchableOpacity>
         </View> :
         <View style={styles.loadingcontainer}>
           <ActivityIndicator size="large" color="#0000ff" />
@@ -473,6 +470,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 2,
     borderColor: 'black'
+  },
+  button_logs: {
+    backgroundColor: '#007bff',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginVertical: 10,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   button_checklist: {
     flexDirection: 'row',

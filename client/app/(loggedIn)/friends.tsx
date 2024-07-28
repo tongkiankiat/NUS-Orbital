@@ -1,4 +1,4 @@
-import { View, StyleSheet, Dimensions, Text, Alert } from 'react-native';
+import { View, StyleSheet, Dimensions, Text, Alert, ActivityIndicator } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import SharedHeader from '../components/sharedheader';
@@ -8,7 +8,6 @@ import FriendRequests from '../components/friendrequests';
 import { supabase } from '../../lib/supabase';
 import { FriendRequestsContext } from '../context/FriendRequestsContext';
 import { PendingRequestsContext } from '../context/PendingRequestsContext';
-import { useFocusEffect } from 'expo-router';
 
 // Define screen dimensions here
 const screenWidth = Dimensions.get('screen').width;
@@ -39,6 +38,11 @@ const Friends = () => {
   const [loading, setLoading] = useState(false);
   const [friendRequests, setFriendRequests] = useState<string[]>([]);
   const [pendingRequests, setPendingRequests] = useState<string[]>([]);
+  const [renderScreen, setRenderScreen] = useState(false);
+
+  useEffect(() => {
+    setRenderScreen(true);
+  }, [friendRequests, pendingRequests]);
 
   // Get Incoming Friend Requests and Pending Friend Requests
   const getRequests = async () => {
@@ -81,21 +85,27 @@ const Friends = () => {
       <PendingRequestsContext.Provider value={{ pendingRequests, setPendingRequests }}>
         <View style={styles.container}>
           <SharedHeader />
-          <Tab.Navigator
-            screenOptions={{
-              tabBarStyle: { backgroundColor: "#E4FBFF" },
-            }}
-          >
-            <Tab.Screen name="Friends" component={FriendsList} />
-            <Tab.Screen name="Find Friends" component={FindFriends} />
-            <Tab.Screen
-              name="Friend Requests"
-              component={FriendRequests}
-              options={{
-                tabBarBadge: () => (<Badge badgeCounter_incoming={badgeCounter_incoming} badgeCounter_pending={badgeCounter_pending} />)
+          {renderScreen ?
+            <Tab.Navigator
+              screenOptions={{
+                tabBarStyle: { backgroundColor: "#E4FBFF" },
               }}
-            />
-          </Tab.Navigator>
+            >
+              <Tab.Screen name="Friends" component={FriendsList} />
+              <Tab.Screen name="Find Friends" component={FindFriends} />
+              <Tab.Screen
+                name="Friend Requests"
+                component={FriendRequests}
+                options={{
+                  tabBarBadge: () => (<Badge badgeCounter_incoming={badgeCounter_incoming} badgeCounter_pending={badgeCounter_pending} />)
+                }}
+              />
+            </Tab.Navigator>
+            :
+            <View style={styles.loadingcontainer}>
+              <ActivityIndicator size="large" color="#0000ff" />
+            </View>
+          }
         </View>
       </PendingRequestsContext.Provider>
     </FriendRequestsContext.Provider>
@@ -106,6 +116,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#E4FBFF',
+  },
+  loadingcontainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)'
   },
   badgeContainer_incoming: {
     backgroundColor: 'red',

@@ -3,14 +3,16 @@ import { Tabs } from 'expo-router';
 import { MaterialCommunityIcons, Entypo, FontAwesome5, FontAwesome6 } from '@expo/vector-icons';
 import { supabase } from '../../lib/supabase';
 import { UsernameContext } from '../context/UsernameContext';
+import { CoinsContext } from '../context/CoinsContext';
 
 const loggedInLayout = () => {
   // Define useState variables
   const [username, setUsername] = useState<any>('');
+  const [coins, setCoins] = useState<any>(0);
   const [loading, setLoading] = useState(false);
 
-  // fetch username from database
-  const fetchUsername = async () => {
+  // fetch username and coins from database
+  const fetchUsernameCoins = async () => {
     setLoading(true);
     try {
       // initialize user from supabase.auth
@@ -21,11 +23,12 @@ const loggedInLayout = () => {
       }
       const uuid = user.data.user?.id;
 
-      const { data, error } = await supabase.from('users').select('username').eq('id', uuid).single();
+      const { data, error: error } = await supabase.from('users').select('username, coins').eq('id', uuid).single();
       if (error) {
-        console.error('Error getting username: ', error);
+        console.error('Error getting username and coins: ', error);
       } else {
         setUsername(data?.username);
+        setCoins(data?.coins)
       }
     } catch (error) {
       console.error('Error fetching documents: ', error);
@@ -35,59 +38,61 @@ const loggedInLayout = () => {
   }
 
   useEffect(() => {
-    fetchUsername();
+    fetchUsernameCoins();
   }, []);
 
 
   return (
     <UsernameContext.Provider value={username}>
-      <Tabs screenOptions={{ headerShown: false, tabBarActiveTintColor: 'blue', tabBarStyle:{backgroundColor: 'blue'}}}>
-        <Tabs.Screen
-          name='home'
-          options={{
-            tabBarIcon: ({ color, size }) => (
-              <Entypo name='home' size={24} color='black' />
-            ),
-            tabBarShowLabel: false
-          }}
-        />
-        <Tabs.Screen
-          name='fooddiary'
-          options={{
-            tabBarIcon: ({ color, size }) => (
-              <MaterialCommunityIcons name='silverware-fork-knife' size={24} color='black' />
-            ),
-            tabBarShowLabel: false
-          }}
-        />
-        <Tabs.Screen
-          name='workout'
-          options={{
-            tabBarIcon: ({ color, size }) => (
-              <FontAwesome6 name='dumbbell' size={24} color='black' />
-            ),
-            tabBarShowLabel: false
-          }}
-        />
-        <Tabs.Screen
-          name='friends'
-          options={{
-            tabBarIcon: ({ color, size }) => (
-              <FontAwesome5 name='user-friends' size={24} color='black' />
-            ),
-            tabBarShowLabel: false
-          }}
-        />
-        <Tabs.Screen
-          name='rewards'
-          options={{
-            tabBarIcon: ({ color, size }) => (
-              <MaterialCommunityIcons name='ticket-percent' size={24} color='black' />
-            ),
-            tabBarShowLabel: false
-          }}
-        />
-      </Tabs>
+      <CoinsContext.Provider value={{ coins, setCoins }}>
+        <Tabs screenOptions={{ headerShown: false, tabBarActiveTintColor: 'blue', tabBarStyle: { backgroundColor: 'blue' } }}>
+          <Tabs.Screen
+            name='home'
+            options={{
+              tabBarIcon: ({ color, size }) => (
+                <Entypo name='home' size={24} color='white' />
+              ),
+              tabBarShowLabel: false
+            }}
+          />
+          <Tabs.Screen
+            name='fooddiary'
+            options={{
+              tabBarIcon: ({ color, size }) => (
+                <MaterialCommunityIcons name='silverware-fork-knife' size={24} color='white' />
+              ),
+              tabBarShowLabel: false
+            }}
+          />
+          <Tabs.Screen
+            name='workout'
+            options={{
+              tabBarIcon: ({ color, size }) => (
+                <FontAwesome6 name='dumbbell' size={24} color='white' />
+              ),
+              tabBarShowLabel: false
+            }}
+          />
+          <Tabs.Screen
+            name='friends'
+            options={{
+              tabBarIcon: ({ color, size }) => (
+                <FontAwesome5 name='user-friends' size={24} color='white' />
+              ),
+              tabBarShowLabel: false
+            }}
+          />
+          <Tabs.Screen
+            name='rewards'
+            options={{
+              tabBarIcon: ({ color, size }) => (
+                <MaterialCommunityIcons name='ticket-percent' size={24} color='white' />
+              ),
+              tabBarShowLabel: false
+            }}
+          />
+        </Tabs>
+      </CoinsContext.Provider>
     </UsernameContext.Provider>
   );
 }
