@@ -2,7 +2,7 @@
 
 FROM python:3.10.8
 
-RUN mkdir -p app/backend
+RUN mkdir -p app/backend app/Data
 
 COPY /model/backend/requirements.txt app/backend/requirements.txt
 COPY /model/Data app/Data
