@@ -1,0 +1,42 @@
+version: '1.0'
+
+services:
+  expo-go-frontend:
+    build:
+      context: .
+      dockerfile: /fatsecretAPI/Dockerfile
+    image: expo-go-frontend:${TAG}
+    ports:
+      - 3000:3000
+      - 10000:10000
+
+  frontend:
+    build:
+      context: .
+      dockerfile: /model/frontend/Dockerfile
+    image: frontend:${TAG}
+    ports:
+      - 5000:5000
+    networks:
+      - project_network
+    depends_on:
+      - backend
+    volumes:
+      - ./model/frontend/Generate_Recommendations.py:/app/frontend/Generate_Recommendations.py
+
+
+  backend:
+    build:
+      context: .
+      dockerfile: /model/backend/Dockerfile
+    image: backend:${TAG}
+    volumes:
+      - ./model/backend/main.py:/app/backend/main.py
+      - ./model/backend/model.py:/app/backend/model.py
+    ports:
+      - 8080:8080
+    networks:
+      - project_network
+
+networks:
+  project_network:

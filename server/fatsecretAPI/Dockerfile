@@ -1,0 +1,16 @@
+# Server Dockerfile
+
+FROM node:20.13.1
+
+RUN mkdir -p /opt/app/src/fatsecretAPI
+
+WORKDIR /opt/app/src/fatsecretAPI
+
+# Expose ports for FatSecretAPI
+EXPOSE 3000 10000
+
+# Install dependencies from node_modules
+COPY fatsecretAPI /opt/app/src/fatsecretAPI/
+RUN npm install
+
+CMD ["node", "server.js"]
