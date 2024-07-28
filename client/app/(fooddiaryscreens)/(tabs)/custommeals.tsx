@@ -182,7 +182,7 @@ const CustomMeals = () => {
       // const response = await axios.post('https://nus-orbital.onrender.com/api/proxy', {
       //   item: searchTerm,
       // });
-      const ingredientResponse = await axios.post('http://192.168.1.142:3000/api/proxy', { item: search });
+      const ingredientResponse = await axios.post('https://nus-orbital.onrender.com/api/proxy', { item: search });
       const jsonData = ingredientResponse.data;
       const ingredientsData = jsonData.foods_search.results.food;
       const parsedingredients = Array.isArray(ingredientsData) ? ingredientsData : [ingredientsData];
