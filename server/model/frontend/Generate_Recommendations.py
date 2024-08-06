@@ -24,7 +24,7 @@ class Generator:
             'params':self.params
         }
         print('Request: ', request, flush=True)
-        response=requests.post(url='http://backend:8080/predict/',data=json.dumps(request))
+        response=requests.post(url='https://nutrisync-backend-03e0fe0180f2.herokuapp.com/predict/',data=json.dumps(request))
         return response
 
 @app.route('/generate_recommendations', methods=['GET'])
