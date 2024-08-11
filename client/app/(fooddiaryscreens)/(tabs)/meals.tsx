@@ -100,13 +100,7 @@ const Meals = ({meal_time}) => {
   const searchFood = async () => {
     setLoading(true);
     try {
-      // ***IMPT, USE LOCALHOST FOR DEVELOPMENT PURPOSES, NOT RENDER SERVER***
-
-      // const response = await axios.post('https://nus-orbital.onrender.com/api/proxy', {
-      //   item: searchTerm,
-      // });
-      const ingredientResponse = await axios.post('https://nus-orbital.onrender.com/api/proxy', { item: search }); {/* For the IP address here, use your network's IP, use 'ipconfig' in powershell/terminal to check. Afterwards, whitelist your public IP address (https://www.whatismyip.com/) in FatSecretAPI website*/ }
-      
+      const ingredientResponse = await axios.post('https://nutrisync-fatsecret-2d974fcd197c.herokuapp.com/api/proxy', { item: search });
       const jsonData = ingredientResponse.data;
       const ingredientsData = jsonData.foods_search.results.food;
       const parsedingredients = Array.isArray(ingredientsData) ? ingredientsData : [ingredientsData];

@@ -4,16 +4,15 @@ services:
   expo-go-frontend:
     build:
       context: .
-      dockerfile: /fatsecretAPI/Dockerfile
+      dockerfile: /fatsecretAPI/Dockerfile-docker-compose
     image: expo-go-frontend:${TAG}
     ports:
-      - 3000:3000
-      - 10000:10000
+      - 80:80
 
   frontend:
     build:
       context: .
-      dockerfile: /model/frontend/Dockerfile
+      dockerfile: /model/frontend/Dockerfile-docker-compose
     image: frontend:${TAG}
     ports:
       - 5000:5000
@@ -28,7 +27,7 @@ services:
   backend:
     build:
       context: .
-      dockerfile: /model/backend/Dockerfile
+      dockerfile: /model/backend/Dockerfile-docker-compose
     image: backend:${TAG}
     volumes:
       - ./model/backend/main.py:/app/backend/main.py

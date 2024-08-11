@@ -3,6 +3,7 @@ import json
 from flask import Flask, request, jsonify
 from random import uniform as rnd
 import traceback
+import os
 
 app = Flask(__name__)
 
@@ -25,6 +26,8 @@ class Generator:
         }
         print('Request: ', request, flush=True)
         response=requests.post(url='https://nutrisync-backend-03e0fe0180f2.herokuapp.com/predict/',data=json.dumps(request))
+        # response=requests.post(url='http://192.168.1.142:8080/predict/',data=json.dumps(request))
+        print('Response: ', response, flush=True)
         return response
 
 @app.route('/generate_recommendations', methods=['GET'])
@@ -97,7 +100,8 @@ def fatsecret_filter():
     data = request.get_json()
     print('Data: ', data, flush=True)
     try: 
-      response = requests.post('https://nus-orbital.onrender.com/api/proxy', json=data)
+      response = requests.post('https://nutrisync-fatsecret-2d974fcd197c.herokuapp.com/api/proxy', json=data)
+      # response = requests.post('http://192.168.1.142:80/api/proxy', json=data)
       if response.status_code == 200:
           data = response.json()
           return jsonify({'safe': True})
@@ -111,7 +115,8 @@ def filter_allergies(allergies, recommended_recipes):
     for recipe in recommended_recipes:
         if not any(allergy in recipe['RecipeIngredientParts'] for allergy in allergies):
             print('Food Name: ', recipe['Name'], flush=True)
-            response = requests.post('https://nus-orbital.onrender.com/filter_fatsecret', json={'item': recipe['Name']})
+            response = requests.post('https://nutrisync-frontend-8f8cce2625a5.herokuapp.com/filter_fatsecret', json={'item': recipe['Name']})
+            # response = requests.post('http://192.168.1.142:5000/filter_fatsecret', json={'item': recipe['Name']})
             if response.json().get('safe'):
               filtered_recipes.append(recipe)
             elif response == False:
@@ -119,4 +124,4 @@ def filter_allergies(allergies, recommended_recipes):
     return filtered_recipes
 
 if __name__ == '__main__':
-     app.run(host='0.0.0.0', port=5000, debug=True)
+     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=True)
