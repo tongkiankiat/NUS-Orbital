@@ -62,7 +62,8 @@ const Generate_MealPlan = () => {
         snacks: 0.05
       };
 
-      const response = await axios.get('http://192.168.68.69:5000/generate_recommendations', { params });
+      const response = await axios.get('https://nutrisync-frontend-8f8cce2625a5.herokuapp.com/generate_recommendations', { params });
+      // const response = await axios.get('http://192.168.1.142:5000/generate_recommendations', { params });
       setRecommendations(response.data);
     } catch (error) {
       console.error(error);
