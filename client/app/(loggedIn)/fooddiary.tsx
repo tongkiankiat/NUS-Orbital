@@ -180,6 +180,8 @@ const UpdateDiary = () => {
           const newIndex = (updateMeal()) % meal_time_array.length;
           setIndex(newIndex);
           setNextMeal(meals[newIndex]);
+          console.log(newIndex)
+          console.log(meals[newIndex])
         }
       }, 1000); // updates the timer countdown every second (1000 milliseconds)
 
@@ -416,6 +418,13 @@ const UpdateDiary = () => {
           <TouchableOpacity style={styles.button_logs} onPress={() => router.push('../components/view_meal')}>
             <Text style={styles.buttonText}>Check Meal Logs</Text>
           </TouchableOpacity>
+          <TouchableOpacity style={styles.button_logs} onPress={() => router.push({
+              pathname: '(fooddiaryscreens)/updatediary', params: {
+                meal_time: nextmeal
+              }
+            })}>
+            <Text style={styles.buttonText}>Log Meal</Text>
+          </TouchableOpacity>
         </View> :
         <View style={styles.loadingcontainer}>
           <ActivityIndicator size="large" color="#0000ff" />
@@ -475,8 +484,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#007bff',
     paddingVertical: 10,
     paddingHorizontal: 20,
-    borderRadius: 5,
-    marginVertical: 10,
+    borderRadius: 5
   },
   buttonText: {
     color: 'white',
