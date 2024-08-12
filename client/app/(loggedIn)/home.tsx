@@ -19,6 +19,12 @@ const MainScreen = () => {
   const [blogPosts, setBlogPosts] = useState<any>([]);
 
   useEffect(() => {
+    if (data.length >= 0) {
+      setRenderScreen(true);
+    };
+  }, [data]);
+
+  useEffect(() => {
     const subscription = supabase.channel('blog_posts').on('postgres_changes', { event: '*', schema: 'public', table: 'blog_posts' }, fetchBlogPosts).subscribe();
 
     return () => { supabase.removeChannel(subscription); };
@@ -30,6 +36,7 @@ const MainScreen = () => {
       if (error) {
         console.error('Error fetching blog posts: ', error);
       } else if (data) {
+        console.log(data);
         setBlogPosts(data);
       };
     } catch (error) {
@@ -38,6 +45,10 @@ const MainScreen = () => {
       setLoading(false);
     };
   };
+
+  useEffect(() => {
+    fetchBlogPosts();
+  }, []);
 
   const webViewRef = useRef(null);
 
@@ -156,7 +167,7 @@ const MainScreen = () => {
               <TouchableOpacity onPress={isWorkingOut ? stopWorkout : startWorkingOut} style={isWorkingOut ? styles.workoutButton_stop : styles.workoutButton_start}>
                 <Text style={styles.workoutButtonText}>{isWorkingOut ? 'Stop Workout' : 'Start Workout'}</Text>
               </TouchableOpacity>
-              {isWorkingOut && <Text style={styles.timerText}>{`Duration: ${Math.floor(time / 60)}:${time % 60}`}</Text>}
+              <Text style={styles.timerText}>{`Timer: ${Math.floor(time / 60)}:${time % 60}`}</Text>
             </View>
             <FlatList
               data={blogPosts}
@@ -165,30 +176,35 @@ const MainScreen = () => {
             />
           </View>
         </View>
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <Text style={styles.headerText}>NUS Gym Crowdedness</Text>
-          {data.map((gym, index) => (
-            <View key={index} style={styles.gymContainer}>
-              <Text style={styles.gymName}>
-                {index === 0 ? 'KR Gym' : index === 1 ? 'USC Gym' : 'UTown Gym'}
-              </Text>
-              <Text style={[styles.crowdedness, { color: renderCrowdednessColor(gym.crowdedness) }]}>
-                {`${gym.currentCount} / ${gym.maxCapacity}`}
-              </Text>
-            </View>
-          ))}
-          <TouchableOpacity onPress={fetchCapacity} style={styles.refreshButton}>
-            <Text style={styles.refreshButtonText}>Refresh</Text>
-          </TouchableOpacity>
-          <WebView
-            ref={webViewRef}
-            source={{ uri: 'https://reboks.nus.edu.sg/nus_public_web/public/index.php/facilities/capacity' }}
-            onMessage={handleMessage}
-            injectedJavaScript={injectedJavaScript}
-            javaScriptEnabled
-            style={{ display: 'none' }}
-          />
-        </View>
+        {renderScreen ?
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <Text style={styles.headerText}>NUS Gyms</Text>
+            {data.map((gym, index) => (
+              <View key={index} style={styles.gymContainer}>
+                <Text style={styles.gymName}>
+                  {index === 0 ? 'KR Gym' : index === 1 ? 'USC Gym' : 'UTown Gym'}
+                </Text>
+                <Text style={[styles.crowdedness, { color: renderCrowdednessColor(gym.crowdedness) }]}>
+                  {`${gym.currentCount} / ${gym.maxCapacity}`}
+                </Text>
+              </View>
+            ))}
+            <TouchableOpacity onPress={fetchCapacity} style={styles.refreshButton}>
+              <Text style={styles.refreshButtonText}>Refresh</Text>
+            </TouchableOpacity>
+            <WebView
+              ref={webViewRef}
+              source={{ uri: 'https://reboks.nus.edu.sg/nus_public_web/public/index.php/facilities/capacity' }}
+              onMessage={handleMessage}
+              injectedJavaScript={injectedJavaScript}
+              javaScriptEnabled
+              style={{ display: 'none' }}
+            />
+          </View> :
+          <View style={styles.loadingcontainer}>
+            <ActivityIndicator size="large" color="#0000ff" />
+          </View>
+        }
       </View>
     </View>
   );
@@ -199,16 +215,16 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#E4FBFF',
   },
-  loadingContainer: {
+  loadingcontainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0)',
   },
   headerText: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
+    paddingBottom: 20
   },
   gymContainer: {
     marginBottom: 15,
@@ -238,22 +254,25 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
+    marginBottom: 10
   },
   workoutButton_stop: {
     backgroundColor: 'red',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
+    marginBottom: 10
   },
   workoutButtonText: {
     color: 'white',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: 'bold'
   },
   timerText: {
     textAlign: 'center',
     alignSelf: 'center',
-    paddingHorizontal: 10
+    paddingHorizontal: 10,
+    fontSize: 18
   },
   blogContainer: {
     flex: 1,

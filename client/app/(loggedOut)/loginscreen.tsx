@@ -3,13 +3,13 @@ import { View, TextInput, Text, StyleSheet, TouchableOpacity, ActivityIndicator,
 import { router } from 'expo-router';
 import { supabase } from '../../lib/supabase';
 
-AppState.addEventListener('change', (state) => {
-  if (state === 'active') {
-    supabase.auth.startAutoRefresh()
-  } else {
-    supabase.auth.stopAutoRefresh()
-  }
-})
+// AppState.addEventListener('change', (state) => {
+//   if (state === 'active') {
+//     supabase.auth.startAutoRefresh()
+//   } else {
+//     supabase.auth.stopAutoRefresh()
+//   }
+// })
 
 const LogInScreen = () => {
   const [email, setEmail] = useState('');
