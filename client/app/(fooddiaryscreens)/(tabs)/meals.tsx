@@ -72,7 +72,6 @@ const Meals = ({meal_time}) => {
   const handleSelect = (item: Ingredient) => {
     setModalVisible(true);
     setSelectedRecipe(item);
-    console.log(item)
   };
 
   const LogMeal = async () => {
@@ -93,6 +92,7 @@ const Meals = ({meal_time}) => {
     } catch (error) {
       console.error('Error occured: ', error);
     } finally {
+      setModalVisible(false);
       setLoading(false);
     }
   };
