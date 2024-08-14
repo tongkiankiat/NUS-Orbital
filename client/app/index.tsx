@@ -1,6 +1,15 @@
 import { router } from 'expo-router'
 import React from 'react'
-import { View, StyleSheet, Text, TouchableOpacity, Image} from 'react-native'
+import { View, StyleSheet, Text, TouchableOpacity, Image, AppState} from 'react-native'
+import { supabase } from '../lib/supabase'
+
+AppState.addEventListener('change', (state) => {
+  if (state === 'active') {
+    supabase.auth.startAutoRefresh()
+  } else {
+    supabase.auth.stopAutoRefresh()
+  }
+})
 
 const HomeScreen = () => {
     return (

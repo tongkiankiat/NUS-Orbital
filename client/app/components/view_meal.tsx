@@ -24,8 +24,6 @@ interface Ingredient {
 const ViewMeal = () => {
   // Define useState variables
   const [date, setDate] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState();
-  const [showModal, setModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [meals, setMeals] = useState<{ meal_id: number, meal_time: string }[]>([]);
   const [renderScreen, setRenderScreen] = useState(false);
@@ -44,7 +42,7 @@ const ViewMeal = () => {
     const uuid = user.data.user?.id;
     setLoading(true);
     try {
-      const { data: mealsData, error } = await supabase.from('meals').select('*').eq('id', uuid).eq('date', date);
+      const { data: mealsData, error } = await supabase.from('meals').select('*').eq('id', uuid).eq('date', date.toISOString().split('T')[0]);
       if (error) {
         Alert.alert('Error occured fetching meals: ', error.message);
       } else if (mealsData) {
@@ -66,20 +64,6 @@ const ViewMeal = () => {
   useEffect(() => {
     getMeals();
   }, [date])
-
-  // Date Picker Icon; select the date to view meals eaten previously 
-  // const showDatePicker = () => {
-  //   setModal(true);
-  // };
-
-  // const hideDatePicker = () => {
-  //   setModal(false);
-  // };
-
-  // const handleConfirm = (date: any) => {
-  //   setDate(date);
-  //   hideDatePicker();
-  // };
 
   const onChange = (event, selectedDate) => {
     console.log(selectedDate);
@@ -104,7 +88,7 @@ const ViewMeal = () => {
     return (
       <View style={styles.mealItem}>
         <Text style={styles.mealName}>{item.food_name}</Text>
-        <Text>{item.meal.food_description}</Text>
+        <Text>{item.meal.food_description || ''}</Text>
         <Text>Calories: {item.meal.calories}</Text>
         <Text>Protein: {item.meal.protein}g</Text>
         <Text>Carbs: {item.meal.carbs}g</Text>
