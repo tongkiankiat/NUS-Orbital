@@ -1,6 +1,6 @@
 # NUtriSync
 
-NUS Orbital Project
+NUS Orbital Project [Final Report] (https://docs.google.com/document/d/1FRf3A0Skvn0mip7sL25c2SJGU1BjRECCW_7y1wJMBKk/edit?usp=drive_link)
 
 This project showcases the development of NutriSync, a fitness and nutrition tracking application.
 
