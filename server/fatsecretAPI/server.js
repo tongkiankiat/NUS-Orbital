@@ -3,11 +3,12 @@ const bodyParser = require('body-parser');
 const request = require('request');
 const clientID = process.env.CLIENT_ID || '555862211cf4418197cbe3afef10a4f0';
 const clientSecret = process.env.CLIENT_SECRET || '8bc1bc3a25b84b49b5f6e9ec9d804ac4';
+const fixieURL = process.env.FIXIE_URL;
 let accessToken = '';
 let tokenExpiresAt = 0;
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 80;
 
 app.use(bodyParser.json());
 
@@ -25,7 +26,8 @@ function getAccessToken(callback) {
       'grant_type': 'client_credentials',
       'scope': 'premier'
     },
-    json: true
+    json: true,
+    proxy: fixieURL
   };
 
   request(options, function (error, response, body) {
@@ -62,7 +64,8 @@ function sendRequest(req, res, token, item) {
       format: 'json'
       // max_results: 1
     },
-    json: true
+    json: true,
+    proxy: fixieURL
   };
 
   request(options, function (error, response, body) {

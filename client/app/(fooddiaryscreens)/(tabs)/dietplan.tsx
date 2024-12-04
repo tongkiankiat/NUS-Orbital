@@ -33,7 +33,6 @@ const DietPlan = ({meal_time}) => {
       if (error) {
         Alert.alert('Error retrieving diet plan: ', error.message);
       } else if (data) {
-        console.log(data.filter(item => item.meal === meal_time));
         setDietPlan(data.filter(item => item.meal === meal_time));
       };
     } catch (error) {
@@ -47,12 +46,14 @@ const DietPlan = ({meal_time}) => {
     getData();
   }, []);
 
-  const select_meal = () => {
-    Alert.alert('Log Meal', 'Are you sure you want to purchase this reward?', [{ text: 'Yes', onPress: () => logMeal}, { text: 'No' }]);
+  const select_meal = (meal) => {
+    setSelectedMeal(meal);
+    Alert.alert('Log Meal', 'Are you sure you want to log this meal?', [{ text: 'Yes', onPress: logMeal}, { text: 'No' }]);
   }
 
   // Log meal
   const logMeal = async () => {
+    console.log('Selected Meal:', selectedMeal)
     const user = await supabase.auth.getUser();
     if (!user) {
       console.error('No such user!');
@@ -64,6 +65,8 @@ const DietPlan = ({meal_time}) => {
       const {error} = await supabase.from('meals').insert({'id': uuid, food_name: selectedMeal?.food_name, meal: selectedMeal, meal_time: meal_time, date: DateTime.now().setZone('Asia/Singapore').toISODate()});
       if (error) {
         Alert.alert('Error occured while logging meal: ', error.message);
+      } else {
+        Alert.alert('Success!', 'Meal Logged Successfully');
       };
     } catch (error) {
       console.error('Error occured while logging meal: ', error);
@@ -74,7 +77,7 @@ const DietPlan = ({meal_time}) => {
 
   const renderDiet = ({ item }: { item: any }) => {
     return (
-      <TouchableOpacity onPress={() => {setSelectedMeal(item); select_meal}}>
+      <TouchableOpacity onPress={() => {select_meal(item)}}>
         <Text style={styles.mealName}>{item.food_name}</Text>
         <Text style={styles.mealMacros}>Calories: {item.calories}</Text>
         <Text style={styles.mealMacros}>Carbs: {item.carbs}</Text>

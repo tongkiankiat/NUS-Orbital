@@ -55,7 +55,7 @@ const add_custommeal = () => {
     }
     const uuid = user.data.user?.id;
     try {
-      const { error: sendError } = await supabase.from('meals').insert({ 'id': uuid, meal: selectedMeal, meal_time: meal_time, date: DateTime.now().setZone('Asia/Singapore').toISODate(), custom_meal: true, meal_name: selectedMealName });
+      const { error: sendError } = await supabase.from('meals').insert({ 'id': uuid, meal: selectedMeal[0], meal_time: meal_time, date: DateTime.now().setZone('Asia/Singapore').toISODate(), custom_meal: true, 'food_name': selectedMealName});
       if (!sendError) {
         Alert.alert('Success!', `Meal Logged for ${meal_time}`);
       } else {

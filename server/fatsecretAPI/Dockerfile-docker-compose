@@ -10,7 +10,7 @@ WORKDIR /opt/app/src/fatsecretAPI
 EXPOSE 80
 
 # Install dependencies from node_modules
-COPY . /opt/app/src/fatsecretAPI/
+COPY /fatsecretAPI /opt/app/src/fatsecretAPI/
 RUN npm install
 
 CMD ["node", "server.js"]

@@ -5,6 +5,7 @@ import { FriendRequestsContext } from '../context/FriendRequestsContext';
 import { UsernameContext } from '../context/UsernameContext';
 import { supabase } from '../../lib/supabase';
 import { PendingRequestsContext } from '../context/PendingRequestsContext';
+import { useIsFocused } from '@react-navigation/native';
 
 // Define screen dimensions here
 const screenWidth = Dimensions.get('screen').width;
@@ -19,19 +20,22 @@ const FriendRequests = () => {
   // Define useState variables
   const [loading, setLoading] = useState(false);
 
+  // Variable to re-render screen in focus
+  const isFocused = useIsFocused();
+
   // Subscribe to realtime updates from supabase DB
 
   // Function to call when there are changes made to DB
   const handleUpdates = (payload: any) => {
-    console.log('Change received: ', pendingRequests.filter(user => user != payload.old.receiver_username));
-    setPendingRequests(pendingRequests.filter((user: string) => user != payload.old.receiver_username));
+    console.log(payload)
+    setPendingRequests(payload.new.pending_requests);
   };
 
   useEffect(() => {
-    const subscription = supabase.channel('social').on('postgres_changes', {event: '*', schema: 'public', table: 'social'}, handleUpdates).subscribe();
+    const subscription = supabase.channel('social').on('postgres_changes', { event: '*', schema: 'public', table: 'social' }, handleUpdates).subscribe();
 
-    return () => {supabase.removeChannel(subscription)};
-  }, [setPendingRequests]);
+    return () => { subscription.unsubscribe() };
+  }, [pendingRequests, isFocused]);
 
   // Accept Friend Request and then remove the request from the friend requests tab
   const AcceptRequest = async (new_friend: string) => {

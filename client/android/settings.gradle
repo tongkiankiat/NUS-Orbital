@@ -1,4 +1,4 @@
-rootProject.name = 'navigate_NUtriSync'
+rootProject.name = 'NUtriSync'
 
 dependencyResolutionManagement {
   versionCatalogs {

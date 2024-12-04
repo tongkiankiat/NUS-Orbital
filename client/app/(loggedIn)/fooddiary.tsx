@@ -1,16 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, StyleSheet, StatusBar, TouchableOpacity, Alert, Dimensions, ActivityIndicator, Image } from 'react-native';
 import { router } from 'expo-router';
 import { supabase } from '../../lib/supabase';
 import dayjs from 'dayjs';
-import utc from '../../node_modules/dayjs/plugin/utc';
-import timezone from '../../node_modules/dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 import * as Notifications from 'expo-notifications';
 import { FontAwesome5, MaterialCommunityIcons, AntDesign } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 import SharedHeader from '../components/sharedheader';
 import { DateTime } from 'luxon';
 import PieChart from 'react-native-pie-chart';
+import { useIsFocused } from '@react-navigation/native';
+import { CoinsContext } from '../context/CoinsContext';
 
 // Add timezone and utc plugin for dayjs for Singapore timezone
 dayjs.extend(utc);
@@ -69,18 +71,24 @@ const UpdateDiary = () => {
     }
   }, [caloricGoal, consumedcalories]);
 
+  // Variable to re-render screen in focus
+  const isFocused = useIsFocused();
+
+  // Coins context
+  const { coins, setCoins } = useContext(CoinsContext);
+
   // this function retrieves meal times from db, and also checks whether the meals of the day have been logged
   const getData = async () => {
     const user = await supabase.auth.getUser();
+    if (!user) {
+      Alert.alert('No such user!');
+      setLoading(false);
+      return;
+    }
     const uuid = user.data.user?.id;
     setLoading(true);
 
     try {
-      if (!user) {
-        Alert.alert('No such user!');
-        setLoading(false);
-        return;
-      }
       const currentDate_SG = DateTime.now().setZone('Asia/Singapore').toISODate();
       // This retrieves meal times
       const { data: mealTimes, error: getError } = await supabase.from('users').select('breakfast_time, lunch_time, dinner_time').eq('id', uuid);
@@ -110,7 +118,7 @@ const UpdateDiary = () => {
 
   useEffect(() => {
     getData();
-  }, []);
+  }, [isFocused]);
 
   // example data format: ['09:00', '17:00', '12:00'}]
 
@@ -180,6 +188,8 @@ const UpdateDiary = () => {
           const newIndex = (updateMeal()) % meal_time_array.length;
           setIndex(newIndex);
           setNextMeal(meals[newIndex]);
+          console.log(newIndex)
+          console.log(meals[newIndex])
         }
       }, 1000); // updates the timer countdown every second (1000 milliseconds)
 
@@ -228,7 +238,7 @@ const UpdateDiary = () => {
 
   useEffect(() => {
     Calc_Goal();
-  }, []);
+  }, [isFocused]);
 
   // Calculate calories consumed for the day
   const Calc_Consumed = async () => {
@@ -258,22 +268,22 @@ const UpdateDiary = () => {
         // Adding calories from custom meals
         if (custom_meals && custom_meals.length > 0) {
           custom_meals.forEach(meal => {
-            const calories = meal.meal[0].calories || 0;
+            const calories = meal.meal.calories || 0;
             totalCalories += calories;
           });
         }
         setConsumed(totalCalories);
-      }
+      };
     } catch (error) {
       console.error('Error occured: ', error);
     } finally {
       setLoading(false);
-    }
+    };
   };
 
   useEffect(() => {
     Calc_Consumed();
-  }, []);
+  }, [isFocused]);
 
   // Button Checklist Component
   const Button_checklist = () => {
@@ -365,13 +375,41 @@ const UpdateDiary = () => {
 
   useEffect(() => {
     Calorie_tracker();
+    updateCoins();
   }, [caloricGoal, consumedcalories]);
+
+  const updateCoins = async () => {
+    try {
+      setLoading(true);
+      const user = await supabase.auth.getUser();
+      if (!user) {
+        console.error('No such user!');
+        setLoading(false);
+        return;
+      };
+      const uuid = user.data.user?.id;
+
+      // Check if goal is hit for the day
+      const { data: met_goal, error: goalError } = await supabase.from('users').select('met_goal').eq('id', uuid);
+      if (goalError) {
+        Alert.alert('Error occured when checking if user has reached goal: ', goalError.message);
+      } else if (!met_goal[0].met_goal && consumedcalories - caloricGoal >= 0) {
+        const {error} = await supabase.from('users').update({ 'coins': coins + 500 }).eq('id', uuid);
+        setCoins(coins + 500);
+        Alert.alert('You have been awarded 500 coins for reaching ur daily calorie intake!');
+      }
+    } catch (error) {
+      console.error('Error occured when checking if user has reached goal: ', error);
+    } finally {
+      setLoading(false);
+    };
+  };
 
   const Calorie_tracker = () => {
 
     const data = [
       { name: 'Consumed', amount: consumedcalories, color: '#4caf50' },
-      { name: 'Remaining', amount: caloricGoal - consumedcalories, color: '#ff5722' }
+      { name: 'Remaining', amount: Math.max(0, caloricGoal - consumedcalories), color: '#ff5722' }
     ];
 
     return (
@@ -435,7 +473,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)'
+    backgroundColor: '#E4FBFF'
   },
   header_navigate: {
     flexDirection: 'row',
@@ -475,8 +513,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#007bff',
     paddingVertical: 10,
     paddingHorizontal: 20,
-    borderRadius: 5,
-    marginVertical: 10,
+    borderRadius: 5
   },
   buttonText: {
     color: 'white',
